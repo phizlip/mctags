@@ -625,7 +625,7 @@ document.addEventListener('keydown', (e) => {
 
     // Switch tabs: Alt/Option + 1-9 (Tab index) or 0 (Last tab)
     if (e.altKey && e.code.startsWith('Digit')) {
-        const digit = parseInt(e.key);
+        const digit = parseInt(e.code.replace('Digit', ''));
         if (!isNaN(digit)) {
             e.preventDefault();
             const tabs = tabManager.tabs;
