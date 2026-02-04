@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>mctags.dev</title>
+    <link rel="icon" type="image/gif" href="img/mctags.gif">
+    <link rel="stylesheet" href="css/style.css">
+
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap"
+        rel="stylesheet">
+
+    <script type="importmap">
+    {
+        "imports": {
+            "jszip": "https://esm.sh/jszip@3.10.1",
+            "cytoscape": "https://esm.sh/cytoscape@3.28.1",
+            "cytoscape-fcose": "https://esm.sh/cytoscape-fcose@2.2.0",
+            "cytoscape-dagre": "https://esm.sh/cytoscape-dagre@2.5.0",
+            "dagre": "https://esm.sh/dagre@0.8.5",
+            "@katana-project/zip": "https://esm.sh/@katana-project/zip@0.7.1"
+        }
+    }
+    </script>
+</head>
+
+<body>
+
+    <div id="disclaimer-modal" class="overlay hidden"
+        style="background: rgba(24, 24, 27, 0.4); backdrop-filter: blur(2px);">
+        <div class="card disclaimer-card">
+            <div class="disclaimer-header-row"
+                style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1rem;">
+                <div style="display: flex; align-items: center; gap: 0.75rem;">
+                    <img src="img/mctags.gif" alt="mctags logo" style="width: 32px; height: 32px;">
+                    <h2 class="disclaimer-title">mctags.dev</h2>
+                </div>
+                <button class="about-close-btn" id="disclaimer-close-btn">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16">
+                        <path
+                            d="M3.72 3.72a.75.75 0 0 1 1.06 0L8 6.94l3.22-3.22a.749.749 0 0 1 1.275.326.749.749 0 0 1-.215.734L9.06 8l3.22 3.22a.749.749 0 0 1-.326 1.275.749.749 0 0 1-.734-.215L8 9.06l-3.22 3.22a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042L6.94 8 3.72 4.78a.75.75 0 0 1 0-1.06Z">
+                        </path>
+                    </svg>
+                </button>
+            </div>
+            <div class="disclaimer-body">
+                <p>This is a tag visualization tool that downloads Minecraft JARs directly from Mojang. By proceeding
+                    you acknowledge the Minecraft <a href="https://www.minecraft.net/eula" target="_blank"
+                        class="text-link">EULA</a>.</p>
+            </div>
+        </div>
+    </div>
+
+    <div id="loading-modal" class="overlay hidden"
+        style="background: rgba(24, 24, 27, 0.4); backdrop-filter: blur(2px);">
+        <div class="card" style="background: transparent; box-shadow: none;">
+            <div id="status-container">
+                <p id="progress-text"
+                    style="text-align: center; margin-bottom: 0.5rem; color: var(--text-primary); font-weight: 500;">
+                    Initializing...</p>
+                <div class="progress-bar-bg"
+                    style="width: 200px; margin: 0 auto; height: 4px; background: var(--border);">
+                    <div id="progress-bar" class="progress-bar-fill" style="background: var(--text-primary);"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="about-modal" class="overlay hidden" style="background: rgba(24, 24, 27, 0.4); backdrop-filter: blur(2px);">
+        <div class="card about-card">
+            <div class="about-header-row">
+                <div style="display: flex; align-items: center; gap: 0.75rem;">
+                    <img src="img/mctags.gif" alt="mctags logo" style="width: 32px; height: 32px;">
+                    <h2 class="about-title">About mctags.dev</h2>
+                </div>
+                <button class="about-close-btn" id="about-close-btn">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16">
+                        <path
+                            d="M3.72 3.72a.75.75 0 0 1 1.06 0L8 6.94l3.22-3.22a.749.749 0 0 1 1.275.326.749.749 0 0 1-.215.734L9.06 8l3.22 3.22a.749.749 0 0 1-.326 1.275.749.749 0 0 1-.734-.215L8 9.06l-3.22 3.22a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042L6.94 8 3.72 4.78a.75.75 0 0 1 0-1.06Z">
+                        </path>
+                    </svg>
+                </button>
+            </div>
+            <div class="about-body">
+                <p>mctags.dev is designed to visualize Minecraft tag relationships using <a
+                        href="https://js.cytoscape.org/" target="_blank" class="text-link">Cytoscape.js</a>. It runs
+                    entirely in your browser.</p>
+
+                <a href="https://github.com/phizlip/mctags" target="_blank" class="github-link">GitHub</a>
+                <p class="text-sm text-muted" style="margin-top: 1rem;">Layout inspired by <a href="https://mcsrc.dev"
+                        target="_blank" class="text-link">mcsrc.dev</a></p>
+
+                <div class="about-key">
+                    <div class="about-header-row">
+                        <h2 class="about-title">Key</h2>
+                    </div>
+                    <ul class="key-list">
+                        <li>
+                            <div class="key-label-wrapper">
+                                <div class="key-marker tag"></div>
+                                <strong>Tag</strong>
+                            </div>
+                            <span>A collection of entries</span>
+                        </li>
+                        <li>
+                            <div class="key-label-wrapper">
+                                <div class="key-marker entry"></div>
+                                <strong>Entry</strong>
+                            </div>
+                            <span>A specific element (item, block, etc)</span>
+                        </li>
+                        <li>
+                            <div class="key-label-wrapper">
+                                <div class="key-marker focused"></div>
+                                <strong>Central Entry</strong>
+                            </div>
+                            <span>The center of the relationship graph</span>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="about-shortcuts">
+                    <div class="about-header-row">
+                        <h2 class="about-title">Keyboard Shortcuts</h2>
+                    </div>
+                    <ul>
+                        <li>
+                            <div class="about-shortcuts-keys">
+                                <kbd class="kbd-modifier">Option</kbd> + <kbd>1</kbd> - <kbd>0</kbd>
+                            </div>
+                            <span>Switch Tabs</span>
+                        </li>
+                        <li>
+                            <div class="about-shortcuts-keys">
+                                <kbd class="kbd-modifier">Option</kbd> + <kbd>F</kbd>
+                            </div>
+                            <span>Focus Search</span>
+                        </li>
+                        <li>
+                            <div class="about-shortcuts-keys">
+                                <kbd class="kbd-modifier">Option</kbd> + <kbd>W</kbd>
+                            </div>
+                            <span>Close Tab</span>
+                        </li>
+                        <li>
+                            <div class="about-shortcuts-keys">
+                                <kbd>Esc</kbd>
+                            </div>
+                            <span>Close Modals</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <header class="top-bar">
+        <div class="version-controls">
+            <select id="type-select" class="version-select">
+                <option value="all" selected>All Types</option>
+                <option value="release">Releases</option>
+                <option value="snapshot">Snapshots</option>
+            </select>
+            <select id="version-select" class="version-select">
+                <option>Loading...</option>
+            </select>
+        </div>
+        <div class="navbar-icons">
+            <button id="refresh-btn" class="icon-btn" title="Reset View">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16">
+                    <path
+                        d="M1.705 8.005a.75.75 0 0 1 .834.656 5.5 5.5 0 0 0 9.592 2.97l-1.204-1.204a.25.25 0 0 1 .177-.427h3.646a.25.25 0 0 1 .25.25v3.646a.25.25 0 0 1-.427.177l-1.38-1.38A7.002 7.002 0 0 1 1.05 8.84a.75.75 0 0 1 .656-.834ZM8 2.5a5.487 5.487 0 0 0-4.131 1.869l1.204 1.204A.25.25 0 0 1 4.896 6H1.25A.25.25 0 0 1 1 5.75V2.104a.25.25 0 0 1 .427-.177l1.38 1.38A7.002 7.002 0 0 1 14.95 7.16a.75.75 0 0 1-1.49.178A5.5 5.5 0 0 0 8 2.5Z" />
+                </svg>
+            </button>
+            <button id="info-btn" class="icon-btn" title="About">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16">
+                    <path
+                        d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8Zm8-6.5a6.5 6.5 0 1 0 0 13 6.5 6.5 0 0 0 0-13ZM6.5 7.75A.75.75 0 0 1 7.25 7h1a.75.75 0 0 1 .75.75v2.75h.25a.75.75 0 0 1 0 1.5h-2a.75.75 0 0 1 0-1.5h.25v-2h-.25a.75.75 0 0 1-.75-.75ZM8 6a1 1 0 1 1 0-2 1 1 0 0 1 0 2Z" />
+                </svg>
+            </button>
+        </div>
+    </header>
+
+    <div id="app" class="app-container">
+        <aside class="sidebar" id="sidebar" style="width: 300px;">
+            <div class="search-box">
+                <input type="text" id="tree-search" placeholder="Search tags or resources...">
+                <button id="search-clear-btn" class="search-clear-btn hidden" title="Clear Search">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16">
+                        <path
+                            d="M3.72 3.72a.75.75 0 0 1 1.06 0L8 6.94l3.22-3.22a.749.749 0 0 1 1.275.326.749.749 0 0 1-.215.734L9.06 8l3.22 3.22a.749.749 0 0 1-.326 1.275.749.749 0 0 1-.734-.215L8 9.06l-3.22 3.22a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042L6.94 8 3.72 4.78a.75.75 0 0 1 0-1.06Z">
+                        </path>
+                    </svg>
+                </button>
+            </div>
+
+            <div id="tree-view" class="tree-view"></div>
+
+            <div id="details-resizer" class="details-resizer"></div>
+
+            <div id="details-panel" class="details hidden">
+                <h3 id="detail-title">Select a node</h3>
+
+                <div class="detail-tabs">
+                    <button id="tab-relations" class="detail-tab active">Relations</button>
+                    <button id="tab-json" class="detail-tab">JSON</button>
+                </div>
+
+                <div id="detail-view-relations">
+                    <div class="detail-section">
+                        <h4>Contains (<span id="detail-child-count">0</span>)</h4>
+                        <ul id="detail-children" class="detail-list"></ul>
+                    </div>
+                    <div class="detail-section">
+                        <h4>Part of (<span id="detail-parent-count">0</span>)</h4>
+                        <ul id="detail-parents" class="detail-list"></ul>
+                    </div>
+                </div>
+
+                <div id="detail-view-json" class="hidden">
+                    <div class="json-container">
+                        <pre><code id="json-content"></code></pre>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <div id="resizer" class="resizer"></div>
+
+        <div class="main-content">
+            <div id="tabs-bar" class="tabs-bar">
+                <!-- Tabs will be injected here -->
+            </div>
+            <div id="breadcrumbs-bar" class="breadcrumbs-bar"></div>
+            <main id="cy" class="graph-container"></main>
+        </div>
+    </div>
+
+    <script type="module" src="js/app.js"></script>
+</body>
+
+</html>

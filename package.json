@@ -1,0 +1,32 @@
+{
+  "name": "mctags",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "serve public"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/phizlip/mctags.git"
+  },
+  "keywords": [],
+  "author": "phizlip",
+  "license": "MIT",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/phizlip/mctags/issues"
+  },
+  "homepage": "https://github.com/phizlip/mctags#readme",
+  "dependencies": {
+    "cytoscape": "^3.33.1",
+    "cytoscape-dagre": "^2.5.0",
+    "dagre": "^0.8.5",
+    "jszip": "^3.10.1",
+    "node-fetch": "^2.7.0"
+  },
+  "devDependencies": {
+    "serve": "^14.2.5"
+  }
+}
