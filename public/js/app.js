@@ -55,6 +55,46 @@ const mcData = new MinecraftData();
 let graph = null;
 let treeView = null;
 let graphData = null;
+let pendingNodeId = null;
+
+function parseHash() {
+    const hash = window.location.hash.substring(1);
+    if (!hash) return { versionId: null, nodeId: null };
+
+    const parts = hash.split('/');
+    const versionId = parts[0];
+
+    if (parts.length > 1) {
+        const category = parts[1];
+        const namespace = parts[2];
+        const name = parts.slice(3).join('/');
+
+        if (category && namespace && name) {
+            return { versionId, nodeId: `${category}:${namespace}:${name}` };
+        }
+    }
+
+    return { versionId, nodeId: null };
+}
+
+function updateUrl(nodeId) {
+    const versionId = ui.versionSelect.options[ui.versionSelect.selectedIndex]?.text.split(' ')[0] || '1.13';
+
+    if (!nodeId) {
+        window.location.hash = `#${versionId}`;
+        return;
+    }
+
+    const parts = nodeId.split(':');
+    if (parts.length >= 3) {
+        const category = parts[0];
+        const namespace = parts[1];
+        const name = parts.slice(2).join('/');
+        window.location.hash = `#${versionId}/${category}/${namespace}/${name}`;
+    } else {
+        window.location.hash = `#${versionId}`;
+    }
+}
 
 
 const tabManager = {
@@ -115,6 +155,7 @@ const tabManager = {
         document.title = 'mctags.dev';
         if (ui.detailsPanel) ui.detailsPanel.classList.add('hidden');
         this.render();
+        updateUrl(null);
     },
 
     activateTab(id) {
@@ -123,6 +164,8 @@ const tabManager = {
 
         // Update browser tab title to show short name
         document.title = id.split(/[:/]/).pop();
+
+        updateUrl(id);
 
         if (graph) graph.showFocusedSubgraph(id);
         const nodeData = graphData.elements.find(el => el.data && el.data.id === id);
@@ -334,10 +377,25 @@ async function init() {
         allVersions = manifest.versions;
         populateVersions();
 
-        const latestSnapshot = manifest.versions.find(v => v.type === 'snapshot');
+        // Check hash for initial version
+        const { versionId, nodeId } = parseHash();
+        let targetVersion = null;
 
-        if (latestSnapshot) {
-            loadVersion(latestSnapshot);
+        if (versionId) {
+            targetVersion = manifest.versions.find(v => v.id === versionId);
+            if (targetVersion) {
+                pendingNodeId = nodeId;
+                const option = Array.from(ui.versionSelect.options).find(opt => opt.text === versionId);
+                if (option) ui.versionSelect.value = option.value;
+            }
+        }
+
+        if (!targetVersion) {
+            targetVersion = manifest.versions.find(v => v.type === 'snapshot');
+        }
+
+        if (targetVersion) {
+            loadVersion(targetVersion);
         } else {
             const latestRelease = manifest.versions.find(v => v.type === 'release');
             if (latestRelease) loadVersion(latestRelease);
@@ -444,11 +502,54 @@ async function loadVersion(version) {
 
         tabManager.init();
 
+        // Handle pending deep link
+        if (pendingNodeId) {
+            const exists = graphData.elements.some(el => el.data.id === pendingNodeId);
+
+            if (exists) {
+                tabManager.openTab(pendingNodeId, pendingNodeId);
+            } else {
+                console.warn(`Node ${pendingNodeId} not found in version ${version.id}`);
+                updateUrl(null);
+            }
+            pendingNodeId = null;
+        } else {
+            updateUrl(null);
+        }
+
     } catch (e) {
         ui.progressText.textContent = 'Error: ' + e.message;
         console.error(e);
     }
 }
+
+window.addEventListener('hashchange', () => {
+    const { versionId, nodeId } = parseHash();
+    const currentVersionId = ui.versionSelect.options[ui.versionSelect.selectedIndex]?.text.split(' ')[0];
+
+    if (versionId && versionId !== currentVersionId) {
+        const option = Array.from(ui.versionSelect.options).find(opt => opt.text === versionId);
+        if (option) {
+            ui.versionSelect.value = option.value;
+            ui.versionSelect.dispatchEvent(new Event('change'));
+            pendingNodeId = nodeId;
+        }
+    } else if (nodeId) {
+        if (tabManager.activeTabId !== nodeId) {
+            const isOpen = tabManager.tabs.some(t => t.id === nodeId);
+            if (isOpen) {
+                tabManager.activateTab(nodeId);
+            } else {
+                if (graphData) {
+                    const exists = graphData.elements.some(el => el.data.id === nodeId);
+                    if (exists) {
+                        tabManager.openTab(nodeId, nodeId);
+                    }
+                }
+            }
+        }
+    }
+});
 
 function onTagSelect(tagId) {
     tabManager.openTab(tagId, tagId);
