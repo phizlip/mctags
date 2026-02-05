@@ -1105,21 +1105,40 @@ button:disabled {
     text-decoration: underline;
 }
 
+.about-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 1.5rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--border);
+}
+
+.about-footer p {
+    margin: 0;
+}
+
 .github-link {
-    display: inline-block;
-    margin-top: 0.5rem;
-    color: var(--text-primary);
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--text-secondary);
     text-decoration: none;
     font-weight: 500;
-    font-size: 0.9rem;
+    font-size: 0.85rem;
+    transition: color 0.15s;
+}
+
+.github-link svg {
+    fill: currentColor;
 }
 
 .github-link:visited {
-    color: var(--text-primary);
+    color: var(--text-secondary);
 }
 
 .github-link:hover {
-    text-decoration: underline;
+    color: var(--text-primary);
 }
 
 /* Disclaimer Modal Styles */
