@@ -265,6 +265,14 @@ button:disabled {
     overflow: hidden;
 }
 
+.sidebar.collapsed {
+    display: none;
+}
+
+.resizer.collapsed {
+    display: none;
+}
+
 
 .sidebar-header {
     display: flex;

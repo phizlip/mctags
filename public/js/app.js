@@ -314,6 +314,28 @@ if (resizer && sidebar) {
             if (graph && graph.cy) graph.cy.resize();
         }
     });
+
+    const sidebarToggleBtn = document.getElementById('sidebar-toggle-btn');
+    if (sidebarToggleBtn) {
+        const collapseIcon = `<path d="M6.823 7.823a.25.25 0 0 1 0 .354l-2.396 2.396A.25.25 0 0 1 4 10.396V5.604a.25.25 0 0 1 .427-.177Z"/><path d="M1.75 0h12.5C15.216 0 16 .784 16 1.75v12.5A1.75 1.75 0 0 1 14.25 16H1.75A1.75 1.75 0 0 1 0 14.25V1.75C0 .784.784 0 1.75 0ZM1.5 1.75v12.5c0 .138.112.25.25.25H9.5v-13H1.75a.25.25 0 0 0-.25.25ZM11 14.5h3.25a.25.25 0 0 0 .25-.25V1.75a.25.25 0 0 0-.25-.25H11Z"/>`;
+        const expandIcon = `<path d="m4.177 7.823 2.396-2.396A.25.25 0 0 1 7 5.604v4.792a.25.25 0 0 1-.427.177L4.177 8.177a.25.25 0 0 1 0-.354Z"/><path d="M0 1.75C0 .784.784 0 1.75 0h12.5C15.216 0 16 .784 16 1.75v12.5A1.75 1.75 0 0 1 14.25 16H1.75A1.75 1.75 0 0 1 0 14.25Zm1.75-.25a.25.25 0 0 0-.25.25v12.5c0 .138.112.25.25.25H9.5v-13Zm12.5 13a.25.25 0 0 0 .25-.25V1.75a.25.25 0 0 0-.25-.25H11v13Z"/>`;
+
+        sidebarToggleBtn.addEventListener('click', () => {
+            sidebar.classList.toggle('collapsed');
+            resizer.classList.toggle('collapsed');
+
+            const svg = sidebarToggleBtn.querySelector('svg');
+            if (sidebar.classList.contains('collapsed')) {
+                svg.innerHTML = collapseIcon;
+                sidebarToggleBtn.title = "Expand Sidebar";
+            } else {
+                svg.innerHTML = expandIcon;
+                sidebarToggleBtn.title = "Collapse Sidebar";
+            }
+
+            if (graph && graph.cy) graph.cy.resize();
+        });
+    }
 }
 
 
@@ -751,6 +773,19 @@ document.addEventListener('keydown', (e) => {
             e.preventDefault();
             tabManager.closeTab(tabManager.activeTabId);
         }
+    }
+
+    // Toggle Sidebar: Alt + E or Option + E
+    if (e.altKey && e.code === 'KeyE') {
+        e.preventDefault();
+        const btn = document.getElementById('sidebar-toggle-btn');
+        if (btn) btn.click();
+    }
+
+    // Reset View: Alt + R or Option + R
+    if (e.altKey && e.code === 'KeyR') {
+        e.preventDefault();
+        if (graph) graph.reset();
     }
 
     if (e.key === 'Escape') {
