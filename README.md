@@ -28,7 +28,7 @@ A web-based tool for visualizing the hierarchy of Minecraft's data.
 
 ## Credits
 
--   **Graph Visualization**: [Cytoscape.js](https://js.cytoscape.org/)
+-   **Graph visualization**: [Cytoscape.js](https://js.cytoscape.org/)
 -   **Layout**: [Dagre](https://github.com/dagrejs/dagre) / [fCoSE](https://github.com/iVis-at-Bilkent/cytoscape.js-fcose)
 -   **JAR extraction**: [JSZip](https://stuk.github.io/jszip/)
 -   **Icons**: [Octicons](https://primer.style/octicons/)
