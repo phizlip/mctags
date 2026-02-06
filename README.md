@@ -23,7 +23,7 @@ A web-based tool for visualizing the hierarchy of Minecraft's data.
 
 -   **Tree View**: Browse the full folder structure of the data.
 -   **Relational View**: View the relationships between tags and resources.
--   **JSON View**: View the JSON content of tags and resources.
+-   **JSON View**: View the JSON content of tags.
 -   **Search**: Instantly filter tags and resources.
 
 ## Credits
