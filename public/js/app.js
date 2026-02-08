@@ -758,8 +758,8 @@ if (ui.aboutModal) {
 
 
 document.addEventListener('keydown', (e) => {
-    // Search focus: Alt + F or Option + F
-    if (e.altKey && e.code === 'KeyF') {
+    // Search focus: Ctrl + F or Alt + F or Option + F or Cmd + F
+    if ((e.ctrlKey || e.altKey || e.metaKey) && e.code === 'KeyF') {
         if (ui.treeSearch) {
             e.preventDefault();
             ui.treeSearch.focus();
@@ -796,8 +796,8 @@ document.addEventListener('keydown', (e) => {
         }
     }
 
-    // Toggle Sidebar: Alt + E or Option + E
-    if (e.altKey && e.code === 'KeyE') {
+    // Toggle Sidebar: Ctrl + E or Alt + E or Option + E or Cmd + E
+    if ((e.ctrlKey || e.altKey || e.metaKey) && e.code === 'KeyE') {
         e.preventDefault();
         const btn = document.getElementById('sidebar-toggle-btn');
         if (btn) btn.click();
@@ -807,6 +807,21 @@ document.addEventListener('keydown', (e) => {
     if (e.altKey && e.code === 'KeyR') {
         e.preventDefault();
         if (graph) graph.reset();
+    }
+
+    // Grid Spacing: - or + (without modifiers like Ctrl/Cmd to avoid Zoom)
+    if (!e.ctrlKey && !e.metaKey && !e.altKey) {
+        if (e.key === '-' || e.code === 'NumpadSubtract') {
+            currentSettings.spacingFactor = Math.max(0.5, Math.min(3.0, (currentSettings.spacingFactor - 0.1)));
+            // Round to 1 decimal place to avoid float errors
+            currentSettings.spacingFactor = Math.round(currentSettings.spacingFactor * 10) / 10;
+            saveAndApplySettings();
+        }
+        if (e.key === '=' || e.key === '+' || e.code === 'NumpadAdd') {
+            currentSettings.spacingFactor = Math.max(0.5, Math.min(3.0, (currentSettings.spacingFactor + 0.1)));
+            currentSettings.spacingFactor = Math.round(currentSettings.spacingFactor * 10) / 10;
+            saveAndApplySettings();
+        }
     }
 
     if (e.key === 'Escape') {
@@ -841,20 +856,22 @@ if (disclaimerCloseBtn) {
 function updateShortcutLabels() {
     const isMac = navigator.userAgent.toUpperCase().indexOf('MAC') !== -1;
     const modifierText = isMac ? 'Option' : 'Alt';
+    const controlText = isMac ? 'Cmd' : 'Ctrl';
 
     document.querySelectorAll('.kbd-modifier').forEach(el => {
         el.textContent = modifierText;
     });
+
+    document.querySelectorAll('.kbd-ctrl').forEach(el => {
+        el.textContent = controlText;
+    });
 }
 
-
-/* Settings Logic */
 const defaultSettings = {
     spacingFactor: 1.0
 };
 let currentSettings = { ...defaultSettings };
 
-// Load from local storage
 try {
     const saved = localStorage.getItem('mctags-settings');
     if (saved) {
@@ -886,35 +903,31 @@ if (ui.settingsResetBtn) {
     ui.settingsResetBtn.addEventListener('click', () => {
         currentSettings = { ...defaultSettings };
         updateSettingsUI();
+        saveAndApplySettings(); // Also auto-save on reset
     });
 }
 
-if (ui.settingsSaveBtn) {
-    ui.settingsSaveBtn.addEventListener('click', () => {
-        // Save settings
-        currentSettings.spacingFactor = parseFloat(ui.gridSpacingInput.value);
-        localStorage.setItem('mctags-settings', JSON.stringify(currentSettings));
+function saveAndApplySettings() {
+    localStorage.setItem('mctags-settings', JSON.stringify(currentSettings));
 
-        // Apply to graph
-        if (graph && graph.updateSettings) {
-            graph.updateSettings(currentSettings);
-            // Re-render current view if active
-            if (tabManager.activeTabId) {
-                graph.showFocusedSubgraph(tabManager.activeTabId);
-            }
+    if (graph && graph.updateSettings) {
+        graph.updateSettings(currentSettings);
+        // Re-render current view if active
+        if (tabManager.activeTabId) {
+            graph.showFocusedSubgraph(tabManager.activeTabId);
         }
-
-        ui.settingsModal.classList.add('hidden');
-    });
+    }
+    updateSettingsUI();
 }
 
 if (ui.gridSpacingInput) {
     ui.gridSpacingInput.addEventListener('input', (e) => {
         ui.gridSpacingValue.textContent = e.target.value;
+        currentSettings.spacingFactor = parseFloat(e.target.value);
+        saveAndApplySettings();
     });
 }
 
-// Close on click outside
 if (ui.settingsModal) {
     ui.settingsModal.addEventListener('click', (e) => {
         if (e.target === ui.settingsModal) {
