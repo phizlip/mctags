@@ -680,8 +680,8 @@ function renderList(listEl, countEl, edges, targetKey, emptyLabel) {
 
 function formatListLabel(id) {
     if (!id) return '';
-    // Split by : or / and take the last part
-    const parts = id.split(/[:/]/);
+    // Split by : only and take the last part
+    const parts = id.split(':');
     return parts[parts.length - 1];
 }
 
