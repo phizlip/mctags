@@ -758,8 +758,29 @@ if (ui.aboutModal) {
 
 
 document.addEventListener('keydown', (e) => {
-    // Search focus: Ctrl + F or Alt + F or Option + F or Cmd + F
-    if ((e.ctrlKey || e.altKey || e.metaKey) && e.code === 'KeyF') {
+    if (e.key === 'Escape') {
+        if (ui.aboutModal && !ui.aboutModal.classList.contains('hidden')) {
+            ui.aboutModal.classList.add('hidden');
+        }
+        if (ui.settingsModal && !ui.settingsModal.classList.contains('hidden')) {
+            ui.settingsModal.classList.add('hidden');
+        }
+        if (ui.treeSearch) {
+            ui.treeSearch.blur();
+        }
+        return;
+    }
+
+    const activeTag = document.activeElement.tagName.toLowerCase();
+    if (activeTag === 'input' || activeTag === 'textarea' || document.activeElement.isContentEditable) {
+        return;
+    }
+
+    if (e.ctrlKey || e.altKey || e.metaKey || e.shiftKey) {
+        return;
+    }
+
+    if (e.code === 'KeyF') {
         if (ui.treeSearch) {
             e.preventDefault();
             ui.treeSearch.focus();
@@ -767,11 +788,11 @@ document.addEventListener('keydown', (e) => {
         }
     }
 
-    // Switch tabs: Alt/Option + 1-9 (Tab index) or 0 (Last tab)
-    if (e.altKey && e.code.startsWith('Digit')) {
+    // Switch tabs: 1-9 (Tab index) or 0 (Last tab)
+    if (e.code.startsWith('Digit')) {
         const digit = parseInt(e.code.replace('Digit', ''));
         if (!isNaN(digit)) {
-            e.preventDefault();
+            // e.preventDefault(); // Optional, 1-9 don't usually do much on body
             const tabs = tabManager.tabs;
             if (tabs.length === 0) return;
 
@@ -788,46 +809,37 @@ document.addEventListener('keydown', (e) => {
         }
     }
 
-    // Close active tab: Alt + W or Option + W
-    if (e.altKey && e.code === 'KeyW') {
+    // Close active tab: W
+    if (e.code === 'KeyW') {
         if (tabManager.activeTabId) {
             e.preventDefault();
             tabManager.closeTab(tabManager.activeTabId);
         }
     }
 
-    // Toggle Sidebar: Ctrl + E or Alt + E or Option + E or Cmd + E
-    if ((e.ctrlKey || e.altKey || e.metaKey) && e.code === 'KeyE') {
+    // Toggle Sidebar: E
+    if (e.code === 'KeyE') {
         e.preventDefault();
         const btn = document.getElementById('sidebar-toggle-btn');
         if (btn) btn.click();
     }
 
-    // Reset View: Alt + R or Option + R
-    if (e.altKey && e.code === 'KeyR') {
+    // Reset View: R
+    if (e.code === 'KeyR') {
         e.preventDefault();
         if (graph) graph.reset();
     }
 
-    // Grid Spacing: - or + (without modifiers like Ctrl/Cmd to avoid Zoom)
-    if (!e.ctrlKey && !e.metaKey && !e.altKey) {
-        if (e.key === '-' || e.code === 'NumpadSubtract') {
-            currentSettings.spacingFactor = Math.max(0.5, Math.min(3.0, (currentSettings.spacingFactor - 0.1)));
-            // Round to 1 decimal place to avoid float errors
-            currentSettings.spacingFactor = Math.round(currentSettings.spacingFactor * 10) / 10;
-            saveAndApplySettings();
-        }
-        if (e.key === '=' || e.key === '+' || e.code === 'NumpadAdd') {
-            currentSettings.spacingFactor = Math.max(0.5, Math.min(3.0, (currentSettings.spacingFactor + 0.1)));
-            currentSettings.spacingFactor = Math.round(currentSettings.spacingFactor * 10) / 10;
-            saveAndApplySettings();
-        }
+    // Grid Spacing: - or +
+    if (e.key === '-' || e.code === 'NumpadSubtract') {
+        currentSettings.spacingFactor = Math.max(0.5, Math.min(3.0, (currentSettings.spacingFactor - 0.1)));
+        currentSettings.spacingFactor = Math.round(currentSettings.spacingFactor * 10) / 10;
+        saveAndApplySettings();
     }
-
-    if (e.key === 'Escape') {
-        if (ui.aboutModal && !ui.aboutModal.classList.contains('hidden')) {
-            ui.aboutModal.classList.add('hidden');
-        }
+    if (e.key === '=' || e.key === '+' || e.code === 'NumpadAdd') {
+        currentSettings.spacingFactor = Math.max(0.5, Math.min(3.0, (currentSettings.spacingFactor + 0.1)));
+        currentSettings.spacingFactor = Math.round(currentSettings.spacingFactor * 10) / 10;
+        saveAndApplySettings();
     }
 });
 
@@ -903,7 +915,7 @@ if (ui.settingsResetBtn) {
     ui.settingsResetBtn.addEventListener('click', () => {
         currentSettings = { ...defaultSettings };
         updateSettingsUI();
-        saveAndApplySettings(); // Also auto-save on reset
+        saveAndApplySettings();
     });
 }
 
