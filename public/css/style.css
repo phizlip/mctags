@@ -576,6 +576,11 @@ button:disabled {
     overflow-x: auto;
     flex-shrink: 0;
     width: 100%;
+    scrollbar-width: none;
+}
+
+.tabs-bar::-webkit-scrollbar {
+    display: none;
 }
 
 .tab {
@@ -594,6 +599,7 @@ button:disabled {
     user-select: none;
     min-width: 120px;
     max-width: 200px;
+    flex-shrink: 0;
 }
 
 .tab:hover {

@@ -105,6 +105,17 @@ const tabManager = {
     init() {
         this.render();
         this.initDragDrop();
+        ui.tabsBar.addEventListener('mousedown', (e) => {
+            if (e.button === 1) {
+                e.preventDefault();
+            }
+        });
+        ui.tabsBar.addEventListener('wheel', (e) => {
+            if (e.deltaY !== 0) {
+                e.preventDefault();
+                ui.tabsBar.scrollLeft += e.deltaY;
+            }
+        }, { passive: false });
     },
 
     openTab(id, label, background = false) {
@@ -211,7 +222,7 @@ const tabManager = {
                  draggable="true"
                  data-id="${tab.id}"
                  onclick="window.openTab('${tab.id}', '${tab.label}')"
-                 onauxclick="if(event.button === 1) { window.closeTab('${tab.id}', event); event.preventDefault(); }">
+                 onauxclick="if(event.button === 1) { window.closeTab('${tab.id}', event); }">
                 <span class="tab-label">${tab.label}</span>
                 <span class="tab-close" onclick="window.closeTab('${tab.id}', event)">×</span>
             </div>
