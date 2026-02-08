@@ -31,7 +31,14 @@ const ui = {
     searchClearBtn: document.getElementById('search-clear-btn'),
     resetBtn: document.getElementById('reset-view-btn'),
     aboutModal: document.getElementById('about-modal'),
-    aboutCloseBtn: document.getElementById('about-close-btn')
+    aboutCloseBtn: document.getElementById('about-close-btn'),
+    settingsModal: document.getElementById('settings-modal'),
+    settingsBtn: document.getElementById('settings-btn'),
+    settingsCloseBtn: document.getElementById('settings-close-btn'),
+    settingsSaveBtn: document.getElementById('settings-save-btn'),
+    settingsResetBtn: document.getElementById('settings-reset-btn'),
+    gridSpacingInput: document.getElementById('grid-spacing'),
+    gridSpacingValue: document.getElementById('grid-spacing-value')
 };
 
 
@@ -520,6 +527,9 @@ async function loadVersion(version) {
 
         graph = new TagGraph('cy', onNodeSelect);
         graph.init(graphData.elements);
+        if (typeof currentSettings !== 'undefined' && graph.updateSettings) {
+            graph.updateSettings(currentSettings);
+        }
 
         graph.onNodeDoubleClick = (nodeId) => {
             // Open tag in new tab
@@ -836,6 +846,83 @@ function updateShortcutLabels() {
         el.textContent = modifierText;
     });
 }
+
+
+/* Settings Logic */
+const defaultSettings = {
+    spacingFactor: 1.0
+};
+let currentSettings = { ...defaultSettings };
+
+// Load from local storage
+try {
+    const saved = localStorage.getItem('mctags-settings');
+    if (saved) {
+        currentSettings = { ...defaultSettings, ...JSON.parse(saved) };
+    }
+} catch (e) { console.error('Failed to load settings', e); }
+
+function updateSettingsUI() {
+    if (ui.gridSpacingInput) {
+        ui.gridSpacingInput.value = currentSettings.spacingFactor;
+        ui.gridSpacingValue.textContent = currentSettings.spacingFactor;
+    }
+}
+
+if (ui.settingsBtn) {
+    ui.settingsBtn.addEventListener('click', () => {
+        updateSettingsUI();
+        ui.settingsModal.classList.remove('hidden');
+    });
+}
+
+if (ui.settingsCloseBtn) {
+    ui.settingsCloseBtn.addEventListener('click', () => {
+        ui.settingsModal.classList.add('hidden');
+    });
+}
+
+if (ui.settingsResetBtn) {
+    ui.settingsResetBtn.addEventListener('click', () => {
+        currentSettings = { ...defaultSettings };
+        updateSettingsUI();
+    });
+}
+
+if (ui.settingsSaveBtn) {
+    ui.settingsSaveBtn.addEventListener('click', () => {
+        // Save settings
+        currentSettings.spacingFactor = parseFloat(ui.gridSpacingInput.value);
+        localStorage.setItem('mctags-settings', JSON.stringify(currentSettings));
+
+        // Apply to graph
+        if (graph && graph.updateSettings) {
+            graph.updateSettings(currentSettings);
+            // Re-render current view if active
+            if (tabManager.activeTabId) {
+                graph.showFocusedSubgraph(tabManager.activeTabId);
+            }
+        }
+
+        ui.settingsModal.classList.add('hidden');
+    });
+}
+
+if (ui.gridSpacingInput) {
+    ui.gridSpacingInput.addEventListener('input', (e) => {
+        ui.gridSpacingValue.textContent = e.target.value;
+    });
+}
+
+// Close on click outside
+if (ui.settingsModal) {
+    ui.settingsModal.addEventListener('click', (e) => {
+        if (e.target === ui.settingsModal) {
+            ui.settingsModal.classList.add('hidden');
+        }
+    });
+}
+
 
 updateShortcutLabels();
 checkDisclaimer();

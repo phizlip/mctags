@@ -12,6 +12,7 @@ export class TagGraph {
         this.cy = null;
         this.currentLayout = 'fcose';
         this.allElements = [];
+        this.settings = { spacingFactor: 1.0 };
     }
 
     init(elements) {
@@ -171,6 +172,10 @@ export class TagGraph {
         });
     }
 
+    updateSettings(newSettings) {
+        this.settings = { ...this.settings, ...newSettings };
+    }
+
     changeLayout(layoutType) {
         if (!this.cy) return;
 
@@ -260,9 +265,10 @@ export class TagGraph {
         });
 
         // Use localized spacing based on labels in that specific group
-        const parentSpacingX = Math.max(160, (maxParentLabelLen * 8) + 48);
-        const childSpacingX = Math.max(120, (maxChildLabelLen * 8) + 40);
-        const spacingY = 120;
+        const factor = this.settings.spacingFactor || 1.0;
+        const parentSpacingX = Math.max(160 * factor, ((maxParentLabelLen * 8) + 48) * factor);
+        const childSpacingX = Math.max(120 * factor, ((maxChildLabelLen * 8) + 40) * factor);
+        const spacingY = 120 * factor;
 
         const centerPos = { x: 0, y: 0 };
         this.cy.$id(tagId).position(centerPos);
