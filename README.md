@@ -4,7 +4,7 @@ A web-based tool for visualizing the hierarchy of Minecraft's data.
 
 **Note:** This project is not affiliated with Mojang or Microsoft in any way. It does NOT redistribute any Minecraft code or resources. The Minecraft JAR is downloaded directly from Mojang's servers to your browser.
 
-<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/23ed6523-6520-4e2a-88a0-cc33d22287b8" />
+<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/c2793ce3-ee5d-4867-8cea-f8bddce678cb" />
 
 ## Build instructions
 
