@@ -1,4 +1,4 @@
-# [mctags.dev](https://mctags.dev)
+# <img src="https://github.com/user-attachments/assets/ca81a7fe-7638-4dd8-b82c-777edb2320a8" width="25" height="25" alt="icon" /> <a href="https://mctags.dev">mctags.dev</a>
 
 A web-based tool for visualizing the hierarchy of Minecraft's data.
 
