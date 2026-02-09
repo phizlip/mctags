@@ -61,6 +61,15 @@ export class TagGraph {
                     }
                 },
                 {
+                    selector: 'node[dataPackColor]',
+                    style: {
+                        'background-color': 'data(dataPackColor)',
+                        'border-width': 2,
+                        'border-color': 'data(dataPackColor)',
+                        'border-opacity': 0.5
+                    }
+                },
+                {
                     selector: 'node:selected',
                     style: {
                         'background-color': '#ffffff',

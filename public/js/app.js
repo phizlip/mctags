@@ -1,6 +1,8 @@
 import { MinecraftData } from './minecraft-data.js';
 import { TagGraph } from './graph.js';
 import { TreeView } from './tree-view.js';
+import { DataPackManager } from './data-pack-manager.js';
+import { VersionChecker } from './version-checker.js';
 
 const ui = {
     loadingModal: document.getElementById('loading-modal'),
@@ -38,7 +40,12 @@ const ui = {
     settingsSaveBtn: document.getElementById('settings-save-btn'),
     settingsResetBtn: document.getElementById('settings-reset-btn'),
     gridSpacingInput: document.getElementById('grid-spacing'),
-    gridSpacingValue: document.getElementById('grid-spacing-value')
+    gridSpacingValue: document.getElementById('grid-spacing-value'),
+
+    datapackDropZone: document.getElementById('datapack-drop-zone'),
+    datapackFileInput: document.getElementById('datapack-file-input'),
+    datapackList: document.getElementById('datapack-list'),
+    datapackModalBody: document.getElementById('datapack-modal-body')
 };
 
 
@@ -59,9 +66,11 @@ if (ui.tabRelations && ui.tabJson) {
 }
 
 const mcData = new MinecraftData();
+const dataPackManager = new DataPackManager();
 let graph = null;
 let treeView = null;
 let graphData = null;
+let baseGraphData = null; // Store base Minecraft data separately
 let pendingNodeId = null;
 
 function parseHash() {
@@ -495,6 +504,7 @@ ui.versionSelect.addEventListener('change', () => {
         const versionId = ui.versionSelect.options[ui.versionSelect.selectedIndex].text.split(' ')[0];
 
         tabManager.clear();
+        dataPackManager.clear(); // Clear custom data packs on version change
 
         loadVersion({ id: versionId, url: versionUrl });
         if (graph) graph.showEmptyState();
@@ -521,6 +531,8 @@ async function loadVersion(version) {
         });
         console.log('Extraction complete');
 
+        // Store base data and working copy
+        baseGraphData = JSON.parse(JSON.stringify(extractedData)); // Deep clone
         graphData = extractedData;
 
         ui.loadingModal.classList.add('hidden');
@@ -563,6 +575,212 @@ async function loadVersion(version) {
     } catch (e) {
         ui.progressText.textContent = 'Error: ' + e.message;
         console.error(e);
+    }
+}
+
+function rebuildGraphWithDataPacks() {
+    if (!baseGraphData) {
+        console.warn('Cannot rebuild graph: baseGraphData not initialized');
+        return;
+    }
+
+    // Start with a fresh copy of base Minecraft data
+    graphData = JSON.parse(JSON.stringify(baseGraphData));
+
+    // Ensure pack format is preserved/accessible
+    const expectedFormat = baseGraphData.packFormat;
+
+    // Get enabled data packs
+    const enabledPacks = dataPackManager.getEnabledDataPacks();
+
+    if (enabledPacks.length === 0) {
+        console.log('No enabled data packs, using base data only');
+        refreshViews();
+        return;
+    }
+
+
+
+    // Create a map of existing nodes for quick lookup
+    const existingNodes = new Map();
+    const existingEdges = new Set();
+
+    graphData.elements.forEach(el => {
+        if (el.data && el.data.id && !el.data.source) {
+            existingNodes.set(el.data.id, el);
+        } else if (el.data && el.data.source && el.data.target) {
+            existingEdges.add(`${el.data.source}->${el.data.target}`);
+        }
+    });
+
+    // Process each enabled data pack
+    enabledPacks.forEach(pack => {
+        const packColor = pack.color;
+
+        pack.tags.forEach((tagData, tagId) => {
+            // Add the tag node if it doesn't exist
+            if (!existingNodes.has(tagId)) {
+                const newNode = {
+                    data: {
+                        id: tagId,
+                        label: tagData.name,
+                        type: 'tag',
+                        category: tagData.category,
+                        path: tagData.path,
+                        json: tagData.json,
+                        dataPackId: pack.id,
+                        dataPackColor: packColor
+                    }
+                };
+                graphData.elements.push(newNode);
+                existingNodes.set(tagId, newNode);
+            } else {
+                // Tag exists, mark it as also from this data pack
+                const node = existingNodes.get(tagId);
+
+                // If this is a new override, update the source pack info
+                if (!node.data.dataPackId || tagData.replace) {
+                    node.data.dataPackId = pack.id;
+                    node.data.dataPackColor = packColor;
+                }
+            }
+
+            // Handle "replace": true
+            if (tagData.replace) {
+
+
+                // Mark node as replaced for UI
+                const node = existingNodes.get(tagId);
+                if (node) {
+                    node.data.replacedBy = pack.name;
+                    node.data.replacedByColor = packColor;
+                }
+
+                // Remove attributes from base data (so it looks like a fresh override)
+                // We keep the node itself, but clear its "json" if it was from base
+                // actually, we should probably overwrite the JSON with the new one
+                if (node) {
+                    node.data.json = tagData.json;
+                }
+
+                // Remove all existing edges where this tag is the source
+                // We need to filter graphData.elements IN PLACE or create a new array
+                // Creating a new array is safer but we need to update existingEdges set too
+
+                // 1. Identify edges to remove
+                const edgesToRemove = [];
+                graphData.elements.forEach((el, index) => {
+                    if (el.data.source === tagId) {
+                        edgesToRemove.push(index);
+                        existingEdges.delete(el.data.id);
+                    }
+                });
+
+                // 2. Remove them (in reverse order to preserve indices)
+                for (let i = edgesToRemove.length - 1; i >= 0; i--) {
+                    graphData.elements.splice(edgesToRemove[i], 1);
+                }
+            }
+
+            // Add edges for tag values
+            if (tagData.values && Array.isArray(tagData.values)) {
+                tagData.values.forEach(val => {
+                    let targetRaw = typeof val === 'object' ? val.id : val;
+
+                    if (targetRaw.startsWith('#')) {
+                        // Reference to another tag
+                        const rawTag = targetRaw.substring(1);
+                        const targetTagId = rawTag.includes(':') ? rawTag : 'minecraft:' + rawTag;
+                        const targetId = `${tagData.category}:${targetTagId}`;
+
+                        // Add target tag node if it doesn't exist
+                        if (!existingNodes.has(targetId)) {
+                            const newNode = {
+                                data: {
+                                    id: targetId,
+                                    label: targetId.split(':').pop(),
+                                    type: 'tag',
+                                    category: tagData.category
+                                }
+                            };
+                            graphData.elements.push(newNode);
+                            existingNodes.set(targetId, newNode);
+                        }
+
+                        // Add edge
+                        const edgeKey = `${tagId}->${targetId}`;
+                        if (!existingEdges.has(edgeKey)) {
+                            graphData.elements.push({
+                                data: {
+                                    source: tagId,
+                                    target: targetId,
+                                    id: edgeKey
+                                }
+                            });
+                            existingEdges.add(edgeKey);
+                        }
+                    } else {
+                        // Reference to an element
+                        const rawElement = targetRaw.includes(':') ? targetRaw : 'minecraft:' + targetRaw;
+                        const targetId = `${tagData.category}:${rawElement}`;
+
+
+
+                        // Add element node if it doesn't exist
+                        if (!existingNodes.has(targetId)) {
+
+                            const newNode = {
+                                data: {
+                                    id: targetId,
+                                    label: targetId.split(':').pop(),
+                                    type: 'element',
+                                    category: tagData.category
+                                }
+                            };
+                            graphData.elements.push(newNode);
+                            existingNodes.set(targetId, newNode);
+                        } else {
+
+                        }
+
+                        // Add edge
+                        const edgeKey = `${tagId}->${targetId}`;
+                        if (!existingEdges.has(edgeKey)) {
+                            graphData.elements.push({
+                                data: {
+                                    source: tagId,
+                                    target: targetId,
+                                    id: edgeKey
+                                }
+                            });
+                            existingEdges.add(edgeKey);
+                        }
+                    }
+                });
+            }
+        });
+    });
+
+    refreshViews();
+
+}
+
+function refreshViews() {
+    // Refresh the graph and tree view
+    if (graph) {
+        graph.init(graphData.elements);
+        if (typeof currentSettings !== 'undefined' && graph.updateSettings) {
+            graph.updateSettings(currentSettings);
+        }
+
+        // Re-render current view if active
+        if (tabManager.activeTabId) {
+            graph.showFocusedSubgraph(tabManager.activeTabId);
+        }
+    }
+
+    if (treeView) {
+        treeView.init(graphData);
     }
 }
 
@@ -618,11 +836,33 @@ function updateDetailsPanel(data) {
 
     const parents = graphData.elements.filter(e => e.data.target === data.id);
 
-    // Render lists
+    // Render Replaced Warning
+    const warningContainer = document.getElementById('detail-replaced-warning');
+    if (warningContainer) {
+        if (data.replacedBy) {
+            warningContainer.innerHTML = `
+                <div style="background: rgba(245, 158, 11, 0.1); border: 1px solid #f59e0b; border-radius: 6px; padding: 0.75rem; margin-bottom: 1rem; color: #f59e0b; font-size: 0.85rem; display: flex; align-items: start; gap: 0.5rem;">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" width="16" height="16" fill="currentColor" style="flex-shrink: 0; margin-top: 2px;">
+                        <path d="M6.457 1.047c.659-1.234 2.427-1.234 3.086 0l6.082 11.378A1.75 1.75 0 0 1 14.082 15H1.918a1.75 1.75 0 0 1-1.543-2.575Zm1.763.707a.25.25 0 0 0-.44 0L1.698 13.132a.25.25 0 0 0 .22.368h12.164a.25.25 0 0 0 .22-.368Zm.53 3.996v2.5a.75.75 0 0 1-1.5 0v-2.5a.75.75 0 0 1 1.5 0ZM9 11a1 1 0 1 1-2 0 1 1 0 0 1 2 0Z"></path>
+                    </svg>
+                    <div>
+                        <strong>Replaced by Data Pack</strong>
+                        <div style="margin-top: 2px; color: var(--text-secondary);">Modified by <span style="color: ${data.replacedByColor || '#fff'}">${data.replacedBy}</span></div>
+                    </div>
+                </div>
+            `;
+            warningContainer.classList.remove('hidden');
+        } else {
+            warningContainer.classList.add('hidden');
+            warningContainer.innerHTML = '';
+        }
+    }
+
+
     renderList(ui.detailChildren, ui.detailChildCount, children, 'target', data.type === 'tag' ? 'Tags & Elements' : 'Elements');
     renderList(ui.detailParents, ui.detailParentCount, parents, 'source', 'Tags');
 
-    // Render JSON
+
     if (data.json) {
         ui.jsonContent.innerHTML = formatJson(data.json);
     } else {
@@ -633,13 +873,13 @@ function updateDetailsPanel(data) {
 function formatJson(json) {
     if (!json) return '';
 
-    // Stringify with indentation
+
     let jsonStr = JSON.stringify(json, null, 2);
 
-    // Escape HTML (basic)
+
     jsonStr = jsonStr.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 
-    // Syntax Highlight
+
     return jsonStr.replace(/("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g, function (match) {
         let cls = 'json-number';
         if (/^"/.test(match)) {
@@ -765,6 +1005,10 @@ document.addEventListener('keydown', (e) => {
         if (ui.settingsModal && !ui.settingsModal.classList.contains('hidden')) {
             ui.settingsModal.classList.add('hidden');
         }
+        const datapackModal = document.getElementById('datapack-modal');
+        if (datapackModal && !datapackModal.classList.contains('hidden')) {
+            datapackModal.classList.add('hidden');
+        }
         if (ui.treeSearch) {
             ui.treeSearch.blur();
         }
@@ -792,7 +1036,6 @@ document.addEventListener('keydown', (e) => {
     if (e.code.startsWith('Digit')) {
         const digit = parseInt(e.code.replace('Digit', ''));
         if (!isNaN(digit)) {
-            // e.preventDefault(); // Optional, 1-9 don't usually do much on body
             const tabs = tabManager.tabs;
             if (tabs.length === 0) return;
 
@@ -951,3 +1194,248 @@ if (ui.settingsModal) {
 
 updateShortcutLabels();
 checkDisclaimer();
+
+// Data Pack Management
+function renderDataPackList() {
+    if (!ui.datapackList) return;
+
+    const packs = dataPackManager.getAllDataPacks();
+
+    if (packs.length === 0) {
+        ui.datapackList.innerHTML = '<p style="font-size: 0.875rem; color: var(--text-secondary); text-align: center; padding: 1rem 0;">No data packs loaded</p>';
+        return;
+    }
+
+    ui.datapackList.innerHTML = packs.map(pack => {
+        const tagCount = pack.tags.size;
+        const tagText = tagCount === 1 ? 'tag' : 'tags';
+        const hasError = pack.error !== null;
+
+
+        // baseGraphData.packFormat comes from the downloaded vanilla JAR's version.json
+        const expectedFormat = baseGraphData ? baseGraphData.packFormat : null;
+
+
+        if (!hasError) {
+            pack.versionWarning = VersionChecker.checkCompatibility(pack.packFormat, expectedFormat);
+        }
+
+        const hasVersionWarning = !hasError && pack.versionWarning &&
+            pack.versionWarning !== VersionChecker.WARNING_LEVELS.COMPATIBLE;
+
+        const warningMessage = hasVersionWarning ?
+            VersionChecker.getWarningMessage(pack.versionWarning, pack.packFormat, expectedFormat) : null;
+
+        const itemClass = `datapack-item ${hasError ? 'error' : ''} ${hasVersionWarning ? 'warning' : ''}`.trim();
+
+        return `
+        <div class="${itemClass}" data-id="${pack.id}">
+            <input type="color" class="datapack-color-picker" value="${pack.color}" data-id="${pack.id}" title="Change color" ${hasError ? 'disabled' : ''}>
+            <div class="datapack-info">
+                <div class="datapack-name" title="${pack.name}">${pack.name}</div>
+                <div class="datapack-meta">${hasError ? pack.error : `${tagCount} ${tagText}`}</div>
+            </div>
+            ${hasVersionWarning ? `
+            <div class="tooltip-container" style="position: relative;">
+                <button class="datapack-version-warning" data-id="${pack.id}" data-warning="${pack.versionWarning}" title="Version warning">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" width="16" height="16" fill="currentColor">
+                        <path d="M6.457 1.047c.659-1.234 2.427-1.234 3.086 0l6.082 11.378A1.75 1.75 0 0 1 14.082 15H1.918a1.75 1.75 0 0 1-1.543-2.575Zm1.763.707a.25.25 0 0 0-.44 0L1.698 13.132a.25.25 0 0 0 .22.368h12.164a.25.25 0 0 0 .22-.368Zm.53 3.996v2.5a.75.75 0 0 1-1.5 0v-2.5a.75.75 0 0 1 1.5 0ZM9 11a1 1 0 1 1-2 0 1 1 0 0 1 2 0Z"></path>
+                    </svg>
+                </button>
+                <div class="datapack-version-tooltip" data-id="${pack.id}" style="display: none;">
+                    <div class="version-tooltip-content">
+                        <strong>${warningMessage.title}</strong>
+                        <p style="white-space: pre-line;">${warningMessage.body}</p>
+                        <a href="https://github.com/misode/mcmeta/tree/data-json" target="_blank" rel="noopener noreferrer" class="error-tooltip-link" style="margin-top: 0.5rem;">View Pack Format versions</a>
+                    </div>
+                </div>
+            </div>
+            ` : ''}
+            ${hasError ? `
+            <div class="tooltip-container" style="position: relative;">
+                <button class="datapack-error-icon" data-id="${pack.id}">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 16 16" fill="currentColor">
+                        <path d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8Zm8-6.5a6.5 6.5 0 1 0 0 13 6.5 6.5 0 0 0 0-13ZM6.5 7.75A.75.75 0 0 1 7.25 7h1a.75.75 0 0 1 .75.75v2.75h.25a.75.75 0 0 1 0 1.5h-2a.75.75 0 0 1 0-1.5h.25v-2h-.25a.75.75 0 0 1-.75-.75ZM8 6a1 1 0 1 1 0-2 1 1 0 0 1 0 2Z"></path>
+                    </svg>
+                </button>
+                <div class="datapack-error-tooltip" data-id="${pack.id}" style="display: none;">
+                    <div class="error-tooltip-content">
+                        <strong>Upload Failed</strong>
+                        <p>${pack.error}</p>
+                        <p style="font-size: 0.75rem; margin-top: 0.5rem;">Data packs must contain tag files in <code>data/&lt;namespace&gt;/tags/&lt;category&gt;/</code>.</p>
+                        <a href="https://minecraft.wiki/w/Tag_(Java_Edition)" target="_blank" rel="noopener noreferrer" class="error-tooltip-link">Learn more about tags</a>
+                    </div>
+                </div>
+            </div>
+            ` : `
+            <label class="datapack-toggle">
+                <input type="checkbox" ${pack.enabled ? 'checked' : ''} data-id="${pack.id}">
+                <span class="datapack-toggle-slider"></span>
+            </label>
+            `}
+<button class="datapack-remove" data-id="${pack.id}" title="Remove data pack">
+    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16">
+        <path d="M3.72 3.72a.75.75 0 0 1 1.06 0L8 6.94l3.22-3.22a.749.749 0 0 1 1.275.326.749.749 0 0 1-.215.734L9.06 8l3.22 3.22a.749.749 0 0 1-.326 1.275.749.749 0 0 1-.734-.215L8 9.06l-3.22 3.22a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042L6.94 8 3.72 4.78a.75.75 0 0 1 0-1.06Z"></path>
+    </svg>
+</button>
+        </div >
+    `;
+    }).join('');
+
+    // Color picker handlers
+    ui.datapackList.querySelectorAll('.datapack-color-picker').forEach(picker => {
+        picker.addEventListener('change', (e) => {
+            const id = e.target.getAttribute('data-id');
+            const newColor = e.target.value;
+            if (dataPackManager.updateColor(id, newColor)) {
+                rebuildGraphWithDataPacks();
+            }
+        });
+    });
+
+    // Toggle handlers
+    ui.datapackList.querySelectorAll('.datapack-toggle input').forEach(toggle => {
+        toggle.addEventListener('change', (e) => {
+            const id = e.target.getAttribute('data-id');
+            dataPackManager.toggleDataPack(id);
+            rebuildGraphWithDataPacks();
+        });
+    });
+
+    // Remove handlers (no confirm dialog)
+    ui.datapackList.querySelectorAll('.datapack-remove').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            const id = e.target.closest('button').getAttribute('data-id');
+            dataPackManager.removeDataPack(id);
+            renderDataPackList();
+            rebuildGraphWithDataPacks();
+        });
+    });
+
+    // Error info button handlers
+    ui.datapackList.querySelectorAll('.datapack-error-icon').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const id = e.target.closest('button').getAttribute('data-id');
+            const tooltip = ui.datapackList.querySelector(`.datapack-error-tooltip[data-id="${id}"]`);
+
+            // Close all other tooltips
+            ui.datapackList.querySelectorAll('.datapack-error-tooltip').forEach(t => {
+                if (t !== tooltip) t.style.display = 'none';
+            });
+
+            // Toggle this tooltip
+            tooltip.style.display = tooltip.style.display === 'none' ? 'block' : 'none';
+        });
+    });
+
+    // Version warning button handlers
+    ui.datapackList.querySelectorAll('.datapack-version-warning').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const id = e.target.closest('button').getAttribute('data-id');
+            const tooltip = ui.datapackList.querySelector(`.datapack-version-tooltip[data-id="${id}"]`);
+
+            // Close all other tooltips (both error and version)
+            ui.datapackList.querySelectorAll('.datapack-error-tooltip, .datapack-version-tooltip').forEach(t => {
+                if (t !== tooltip) t.style.display = 'none';
+            });
+
+            // Toggle this tooltip
+            tooltip.style.display = tooltip.style.display === 'none' ? 'block' : 'none';
+        });
+    });
+}
+
+if (ui.datapackDropZone && ui.datapackFileInput) {
+    // Click to browse
+    ui.datapackDropZone.addEventListener('click', () => {
+        ui.datapackFileInput.click();
+    });
+
+    // Drag and drop handlers
+    ui.datapackModalBody.addEventListener('dragenter', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        ui.datapackDropZone.classList.add('drag-over');
+    });
+
+    ui.datapackModalBody.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+    });
+
+    ui.datapackModalBody.addEventListener('dragleave', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        // Only remove if leaving the modal body itself
+        if (e.target === ui.datapackModalBody) {
+            ui.datapackDropZone.classList.remove('drag-over');
+        }
+    });
+
+    ui.datapackModalBody.addEventListener('drop', async (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        ui.datapackDropZone.classList.remove('drag-over');
+
+        const files = Array.from(e.dataTransfer.files).filter(f => f.name.endsWith('.zip'));
+        if (files.length === 0) return;
+
+        // Trigger the same upload logic as file input
+        const dataTransfer = new DataTransfer();
+        files.forEach(f => dataTransfer.items.add(f));
+        ui.datapackFileInput.files = dataTransfer.files;
+        ui.datapackFileInput.dispatchEvent(new Event('change'));
+    });
+
+    ui.datapackFileInput.addEventListener('change', async (e) => {
+        const files = e.target.files;
+        if (!files || files.length === 0) return;
+
+        for (const file of files) {
+            ui.progressText.textContent = `Uploading ${file.name}...`;
+            ui.loadingModal.classList.remove('hidden');
+
+            const result = await dataPackManager.uploadDataPack(file);
+
+            ui.loadingModal.classList.add('hidden');
+            renderDataPackList();
+
+            // Rebuild graph with data pack tags
+            rebuildGraphWithDataPacks();
+
+            // Handle both single pack and multiple packs (from nested ZIPs)
+            const packCount = Array.isArray(result) ? result.length : 1;
+            console.log(`Successfully uploaded ${packCount} data pack(s) from ${file.name} `);
+        }
+
+        e.target.value = '';
+    });
+}
+
+// Data Pack Modal Handlers
+const datapackModal = document.getElementById('datapack-modal');
+const datapackBtn = document.getElementById('datapack-btn');
+const datapackCloseBtn = document.getElementById('datapack-close-btn');
+
+if (datapackBtn) {
+    datapackBtn.addEventListener('click', () => {
+        datapackModal.classList.remove('hidden');
+        renderDataPackList();
+    });
+}
+
+if (datapackCloseBtn) {
+    datapackCloseBtn.addEventListener('click', () => {
+        datapackModal.classList.add('hidden');
+    });
+}
+
+if (datapackModal) {
+    datapackModal.addEventListener('click', (e) => {
+        if (e.target === datapackModal) {
+            datapackModal.classList.add('hidden');
+        }
+    });
+}

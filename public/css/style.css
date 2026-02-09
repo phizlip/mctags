@@ -1254,3 +1254,348 @@ button:disabled {
 .text-link:hover {
     color: white;
 }
+
+/* Data Pack List Styles */
+.about-datapacks {
+    margin-bottom: 2rem;
+    padding-bottom: 2rem;
+    border-bottom: 1px solid var(--border);
+}
+
+.datapack-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.datapack-drop-zone {
+    width: 100%;
+    margin-bottom: 1.5rem;
+    padding: 2rem 1rem;
+    background: var(--card-bg);
+    border: 2px dashed var(--border);
+    border-radius: 8px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.75rem;
+    cursor: pointer;
+    color: var(--text-secondary);
+}
+
+.drop-zone-text {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.25rem;
+    text-align: center;
+}
+
+.drop-zone-text strong {
+    font-size: 0.875rem;
+    color: var(--text-primary);
+}
+
+.drop-zone-text span {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+}
+
+
+.datapack-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.75rem;
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+}
+
+.datapack-item.error {
+    border-color: #ef4444;
+    position: relative;
+}
+
+.datapack-item.warning {
+    border-color: #f59e0b;
+    position: relative;
+}
+
+.datapack-error-icon {
+    color: #ef4444;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    background: transparent;
+    border: none;
+    width: 24px;
+    height: 24px;
+    padding: 0;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: background 0.15s;
+}
+
+.datapack-error-icon:hover {
+    background: var(--accent-hover) !important;
+    color: var(--text-primary);
+}
+
+.datapack-error-tooltip {
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    margin-top: 0.5rem;
+    width: 320px;
+    background: #18181b;
+    border: 1px solid #ef4444;
+    border-radius: 8px;
+    padding: 1rem;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.5);
+    z-index: 1000;
+    opacity: 1 !important;
+}
+
+.error-tooltip-content {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.error-tooltip-content strong {
+    color: #ef4444;
+    font-size: 0.875rem;
+}
+
+.error-tooltip-content p {
+    margin: 0;
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    line-height: 1.4;
+}
+
+.error-tooltip-content code {
+    background: var(--bg-color);
+    padding: 0.125rem 0.25rem;
+    border-radius: 3px;
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    color: var(--text-primary);
+}
+
+.error-tooltip-link {
+    color: #3b82f6;
+    text-decoration: none;
+    font-size: 0.75rem;
+    margin-top: 0.25rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+.error-tooltip-link:hover {
+    text-decoration: underline;
+}
+
+/* Version Warning Styles */
+.datapack-version-warning {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    background: transparent;
+    border: none;
+    width: 24px;
+    height: 24px;
+    padding: 0;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: background 0.15s;
+    font-size: 16px;
+}
+
+.datapack-version-warning[data-warning="version_mismatch"] {
+    color: #f59e0b;
+    /* Orange */
+}
+
+.datapack-version-warning[data-warning="no_metadata"] {
+    color: #eab308;
+    /* Yellow */
+}
+
+.datapack-version-warning:hover {
+    background: var(--accent-hover) !important;
+    color: var(--text-primary) !important;
+}
+
+.datapack-version-warning svg {
+    fill: currentColor;
+    display: block;
+}
+
+.datapack-version-tooltip {
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    margin-top: 0.5rem;
+    width: 320px;
+    background: #18181b;
+    border: 1px solid #f59e0b;
+    border-radius: 8px;
+    padding: 1rem;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.5);
+    z-index: 1000;
+    opacity: 1 !important;
+}
+
+.version-tooltip-content {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.version-tooltip-content strong {
+    font-size: 0.875rem;
+    color: #f59e0b;
+}
+
+.version-tooltip-content p {
+    margin: 0;
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    line-height: 1.4;
+}
+
+.version-tooltip-content label {
+    cursor: pointer;
+    user-select: none;
+}
+
+.version-tooltip-content input[type="checkbox"] {
+    cursor: pointer;
+}
+
+
+.datapack-color-picker {
+    width: 32px;
+    height: 32px;
+    border-radius: 6px;
+    flex-shrink: 0;
+    border: 2px solid rgba(255, 255, 255, 0.1);
+    cursor: pointer;
+    padding: 0;
+}
+
+.datapack-color-picker::-webkit-color-swatch-wrapper {
+    padding: 0;
+}
+
+.datapack-color-picker::-webkit-color-swatch {
+    border: none;
+    border-radius: 4px;
+}
+
+.datapack-color-picker::-moz-color-swatch {
+    border: none;
+    border-radius: 4px;
+}
+
+
+
+.datapack-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.datapack-name {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--text-primary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.datapack-meta {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    margin-top: 0.125rem;
+}
+
+.datapack-toggle {
+    position: relative;
+    width: 36px;
+    height: 20px;
+    flex-shrink: 0;
+}
+
+.datapack-toggle input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.datapack-toggle-slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #3f3f46;
+    transition: 0.2s;
+    border-radius: 20px;
+}
+
+.datapack-toggle-slider:before {
+    position: absolute;
+    content: "";
+    height: 14px;
+    width: 14px;
+    left: 3px;
+    bottom: 3px;
+    background-color: #a1a1aa;
+    transition: 0.2s;
+    border-radius: 50%;
+}
+
+.datapack-toggle input:checked+.datapack-toggle-slider {
+    background-color: var(--text-primary);
+}
+
+.datapack-toggle input:checked+.datapack-toggle-slider:before {
+    transform: translateX(16px);
+    background-color: var(--bg-color);
+}
+
+
+.datapack-remove {
+    width: 24px !important;
+    height: 24px !important;
+    padding: 0 !important;
+    background: transparent !important;
+    border: none !important;
+    color: var(--text-secondary) !important;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 4px !important;
+    transition: all 0.15s;
+    flex-shrink: 0;
+}
+
+.datapack-remove:hover {
+    background: var(--accent-hover) !important;
+    color: var(--text-primary) !important;
+}
+
+.datapack-remove svg {
+    fill: currentColor;
+    display: block;
+}

@@ -54,7 +54,31 @@ export class MinecraftData {
 
             const blob = new Blob(chunks);
             onProgress('Processing JAR...', 55);
-            return await openJar(blob);
+            const jar = await openJar(blob);
+
+            // Read pack format from version.json
+            try {
+                const versionJson = await jar.readEntry('version.json');
+                const versionData = JSON.parse(versionJson);
+                // content of pack_version can be a number (older) or object (newer)
+                // Newer objects can have 'data' (e.g. 1.21.5) or 'data_major' (e.g. 26.1 snapshots)
+                let fmt = versionData.pack_version;
+                if (typeof fmt === 'object' && fmt !== null) {
+                    if (typeof fmt.data !== 'undefined') {
+                        fmt = fmt.data;
+                    } else if (typeof fmt.data_major !== 'undefined') {
+                        fmt = fmt.data_major;
+                    }
+                }
+                jar.packFormat = (typeof fmt === 'number') ? fmt : null;
+                this.currentPackFormat = jar.packFormat;
+            } catch (e) {
+                console.warn('Could not read pack format from JAR:', e);
+                jar.packFormat = null;
+                this.currentPackFormat = null;
+            }
+
+            return jar;
 
         } catch (e) {
             throw new Error(`Failed to download jar: ${e.message}`);
@@ -231,7 +255,8 @@ export class MinecraftData {
                 ...this.edges
             ],
             stats: this.stats,
-            categories: Array.from(this.categories).sort()
+            categories: Array.from(this.categories).sort(),
+            packFormat: this.currentPackFormat
         };
     }
 }
