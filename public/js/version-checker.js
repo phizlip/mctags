@@ -23,7 +23,9 @@ export const VersionChecker = {
             return this.WARNING_LEVELS.COMPATIBLE;
         }
 
-        if (packFormat == expectedFormat) {
+        const expectedMajor = typeof expectedFormat === 'object' ? expectedFormat.major : expectedFormat;
+
+        if (packFormat == expectedMajor) {
             return this.WARNING_LEVELS.COMPATIBLE;
         }
 
@@ -34,7 +36,15 @@ export const VersionChecker = {
         switch (warningLevel) {
             case this.WARNING_LEVELS.VERSION_MISMATCH:
                 const madeFor = `Pack Format ${packFormat}`;
-                const expected = expectedFormat ? `Selected Version: Pack Format ${expectedFormat}` : 'Selected Version: Unknown Format';
+
+                let expected;
+                if (typeof expectedFormat === 'object' && expectedFormat !== null) {
+                    expected = `Selected Version:\nMajor Version: ${expectedFormat.major}\nMinor Version: ${expectedFormat.minor}`;
+                } else if (expectedFormat) {
+                    expected = `Selected Version: Pack Format ${expectedFormat}`;
+                } else {
+                    expected = 'Selected Version: Unknown Format';
+                }
 
                 return {
                     title: 'Incompatible Pack Format',

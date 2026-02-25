@@ -64,13 +64,15 @@ export class MinecraftData {
                 // Newer objects can have 'data' (e.g. 1.21.5) or 'data_major' (e.g. 26.1 snapshots)
                 let fmt = versionData.pack_version;
                 if (typeof fmt === 'object' && fmt !== null) {
-                    if (typeof fmt.data !== 'undefined') {
+                    if (typeof fmt.data_major !== 'undefined' && typeof fmt.data_minor !== 'undefined') {
+                        fmt = { major: fmt.data_major, minor: fmt.data_minor };
+                    } else if (typeof fmt.data !== 'undefined') {
                         fmt = fmt.data;
                     } else if (typeof fmt.data_major !== 'undefined') {
                         fmt = fmt.data_major;
                     }
                 }
-                jar.packFormat = (typeof fmt === 'number') ? fmt : null;
+                jar.packFormat = (typeof fmt === 'number' || typeof fmt === 'object') ? fmt : null;
                 this.currentPackFormat = jar.packFormat;
             } catch (e) {
                 console.warn('Could not read pack format from JAR:', e);
