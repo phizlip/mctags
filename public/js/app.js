@@ -882,8 +882,10 @@ function updateDetailsPanel(data) {
 
     if (data.json) {
         ui.jsonContent.innerHTML = formatJson(data.json);
+        if (jsonCopyBtn) jsonCopyBtn.classList.remove('hidden');
     } else {
         ui.jsonContent.innerHTML = '<span class="text-muted">No JSON available</span>';
+        if (jsonCopyBtn) jsonCopyBtn.classList.add('hidden');
     }
 }
 
