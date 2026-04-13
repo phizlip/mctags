@@ -57,7 +57,7 @@ body {
 
 .card h1 {
     margin: 0 0 0.5rem 0;
-    font-weight: 600;
+    font-weight: 400;
     letter-spacing: -0.025em;
 }
 
@@ -79,7 +79,7 @@ body {
     color: var(--text-secondary);
     text-transform: uppercase;
     letter-spacing: 0.05em;
-    font-weight: 600;
+    font-weight: 400;
 }
 
 select {
@@ -107,7 +107,7 @@ button {
     color: #18181b;
     border: none;
     border-radius: 6px;
-    font-weight: 600;
+    font-weight: 400;
     cursor: pointer;
     transition: background 0.2s;
     font-size: 0.875rem;
@@ -214,7 +214,7 @@ button:disabled {
 
 .settings-title {
     font-size: 1.25rem;
-    font-weight: 600;
+    font-weight: 400;
     color: var(--text-primary);
 }
 
@@ -386,7 +386,7 @@ button:disabled {
 .sidebar h2 {
     margin: 0;
     font-size: 1.1rem;
-    font-weight: 600;
+    font-weight: 400;
     letter-spacing: -0.01em;
 }
 
@@ -455,7 +455,7 @@ button:disabled {
 
 .search-match {
     color: #fff;
-    font-weight: 600;
+    font-weight: 400;
 }
 
 .tree-no-results {
@@ -505,7 +505,7 @@ button:disabled {
 
 #detail-title {
     font-size: 1rem;
-    font-weight: 600;
+    font-weight: 400;
     margin-top: 0;
     margin-bottom: 0.75rem;
     overflow-wrap: anywhere;
@@ -528,7 +528,7 @@ button:disabled {
     border: none;
     color: var(--text-muted);
     font-size: 0.85rem;
-    font-weight: 500;
+    font-weight: 400;
     cursor: pointer;
     padding: 0.25rem 0.5rem;
     border-radius: 4px;
@@ -544,7 +544,7 @@ button:disabled {
 .detail-tab.active {
     color: var(--text-primary);
     background: var(--accent) !important;
-    font-weight: 600;
+    font-weight: 400;
 }
 
 .json-container {
@@ -601,7 +601,7 @@ button:disabled {
     letter-spacing: 0.05em;
     color: var(--text-muted);
     margin-bottom: 0.5rem;
-    font-weight: 600;
+    font-weight: 400;
 }
 
 .detail-list {
@@ -835,7 +835,7 @@ button:disabled {
 .tree-category-name {
     flex: 1;
     font-size: 0.75rem;
-    font-weight: 600;
+    font-weight: 400;
     color: var(--text-primary);
     text-transform: uppercase;
     letter-spacing: 0.05em;
@@ -983,7 +983,7 @@ button:disabled {
 }
 
 .tree-folder {
-    font-weight: 500;
+    font-weight: 400;
 }
 
 .tree-label {
@@ -1031,7 +1031,7 @@ button:disabled {
 .about-title {
     color: var(--text-primary);
     font-size: 1.1rem;
-    font-weight: 600;
+    font-weight: 400;
     margin: 0;
 }
 
@@ -1183,14 +1183,14 @@ button:disabled {
 
 .about-body strong {
     color: var(--text-primary);
-    font-weight: 600;
+    font-weight: 400;
 }
 
 
 .text-link {
     color: var(--text-primary);
     text-decoration: none;
-    font-weight: 500;
+    font-weight: 400;
 }
 
 .text-link:visited {
@@ -1220,7 +1220,7 @@ button:disabled {
     gap: 0.5rem;
     color: var(--text-secondary);
     text-decoration: none;
-    font-weight: 500;
+    font-weight: 400;
     font-size: 0.85rem;
     transition: color 0.15s;
 }
@@ -1254,7 +1254,7 @@ button:disabled {
 .disclaimer-title {
     margin: 0;
     font-size: 1.25rem;
-    font-weight: 600;
+    font-weight: 400;
 }
 
 .disclaimer-body p {
@@ -1271,7 +1271,7 @@ button:disabled {
     border: none;
     padding: 0.75rem 2rem;
     font-size: 0.9rem;
-    font-weight: 600;
+    font-weight: 400;
     border-radius: 6px;
     cursor: pointer;
     width: auto;
@@ -1556,7 +1556,7 @@ button:disabled {
 
 .datapack-name {
     font-size: 0.875rem;
-    font-weight: 500;
+    font-weight: 400;
     color: var(--text-primary);
     white-space: nowrap;
     overflow: hidden;

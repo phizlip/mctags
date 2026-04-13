@@ -48,7 +48,7 @@ export class TagGraph {
                         'min-width': '80px',
                         'height': 28,
                         'padding': '10px',
-                        'font-weight': 'bold',
+                        'font-weight': 'normal',
                         'color': '#18181b'
                     }
                 },

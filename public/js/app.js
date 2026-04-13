@@ -863,7 +863,7 @@ function updateDetailsPanel(data) {
                         <path d="M6.457 1.047c.659-1.234 2.427-1.234 3.086 0l6.082 11.378A1.75 1.75 0 0 1 14.082 15H1.918a1.75 1.75 0 0 1-1.543-2.575Zm1.763.707a.25.25 0 0 0-.44 0L1.698 13.132a.25.25 0 0 0 .22.368h12.164a.25.25 0 0 0 .22-.368Zm.53 3.996v2.5a.75.75 0 0 1-1.5 0v-2.5a.75.75 0 0 1 1.5 0ZM9 11a1 1 0 1 1-2 0 1 1 0 0 1 2 0Z"></path>
                     </svg>
                     <div>
-                        <strong>Replaced by Data Pack</strong>
+                        <span>Replaced by Data Pack</span>
                         <div style="margin-top: 2px; color: var(--text-secondary);">Modified by <span style="color: ${data.replacedByColor || '#fff'}">${data.replacedBy}</span></div>
                     </div>
                 </div>
@@ -1263,7 +1263,7 @@ function renderDataPackList() {
                 </button>
                 <div class="datapack-version-tooltip" data-id="${pack.id}" style="display: none;">
                     <div class="version-tooltip-content">
-                        <strong>${warningMessage.title}</strong>
+                        <span>${warningMessage.title}</span>
                         <p style="white-space: pre-line;">${warningMessage.body}</p>
                         <a href="https://github.com/misode/mcmeta/tree/data-json" target="_blank" rel="noopener noreferrer" class="error-tooltip-link" style="margin-top: 0.5rem;">View Pack Format versions</a>
                     </div>
@@ -1279,7 +1279,7 @@ function renderDataPackList() {
                 </button>
                 <div class="datapack-error-tooltip" data-id="${pack.id}" style="display: none;">
                     <div class="error-tooltip-content">
-                        <strong>Upload Failed</strong>
+                        <span>Upload Failed</span>
                         <p>${pack.error}</p>
                         <p style="font-size: 0.75rem; margin-top: 0.5rem;">Data packs must contain tag files in <code>data/&lt;namespace&gt;/tags/&lt;category&gt;/</code>.</p>
                         <a href="https://minecraft.wiki/w/Tag_(Java_Edition)" target="_blank" rel="noopener noreferrer" class="error-tooltip-link">Learn more about tags</a>
