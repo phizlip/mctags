@@ -4,7 +4,7 @@ A web-based tool for visualizing the hierarchy of Minecraft's data.
 
 **Note:** This project is not affiliated with Mojang or Microsoft in any way. It does NOT redistribute any Minecraft code or resources. The Minecraft JAR is downloaded directly from Mojang's servers to your browser.
 
-<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/c2793ce3-ee5d-4867-8cea-f8bddce678cb" />
+<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/a4989a34-7603-4f7e-bee1-ca2eab23e321" />
 
 ## Build instructions
 
@@ -23,7 +23,7 @@ A web-based tool for visualizing the hierarchy of Minecraft's data.
 
 -   **Tree View**: Browse the full folder structure of the data.
 -   **Relational View**: View the relationships between tags and resources.
--   **JSON View**: View the JSON content of tags.
+-   **JSON View**: View and copy the JSON content of tags.
 -   **Search**: Instantly filter tags and resources.
 
 ## Credits
@@ -32,4 +32,4 @@ A web-based tool for visualizing the hierarchy of Minecraft's data.
 -   **Layout**: [Dagre](https://github.com/dagrejs/dagre) / [fCoSE](https://github.com/iVis-at-Bilkent/cytoscape.js-fcose)
 -   **JAR extraction**: [JSZip](https://stuk.github.io/jszip/)
 -   **Icons**: [Octicons](https://primer.style/octicons/)
--   **Inspired by**: [mcsrc.dev](https://mcsrc.dev)
+-   **Inspired by**: [mcsrc.dev](https://github.com/FabricMC/mcsrc)
