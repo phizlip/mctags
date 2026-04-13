@@ -1118,8 +1118,8 @@ button:disabled {
 }
 
 .key-marker.focused {
-    background-color: #52525b;
-    border: 2px solid #ffffff;
+    background-color: #ffffff;
+    border: 3px solid #a1a1aa;
 }
 
 .key-label-wrapper strong {

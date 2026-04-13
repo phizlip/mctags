@@ -338,8 +338,11 @@ export class TagGraph {
         layout.run();
 
         this.cy.$id(tagId).style({
-            'border-width': 3,
-            'border-color': '#ffffff'
+            'background-color': '#ffffff',
+            'color': '#18181b',
+            'border-width': 4,
+            'border-color': '#a1a1aa',
+            'border-style': 'solid'
         });
     }
 
