@@ -583,7 +583,15 @@ button:disabled {
 
 
 
+#detail-view-relations {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0 1.5rem;
+}
+
 .detail-section {
+    flex: 1 1 140px;
+    min-width: 140px;
     margin-bottom: 1.5rem;
 }
 
