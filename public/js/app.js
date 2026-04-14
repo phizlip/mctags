@@ -883,9 +883,18 @@ function updateDetailsPanel(data) {
     if (data.json) {
         ui.jsonContent.innerHTML = formatJson(data.json);
         if (jsonCopyBtn) jsonCopyBtn.classList.remove('hidden');
+        if (ui.tabJson) ui.tabJson.classList.remove('hidden');
     } else {
-        ui.jsonContent.innerHTML = '<span class="text-muted">No JSON available</span>';
+        ui.jsonContent.innerHTML = '';
         if (jsonCopyBtn) jsonCopyBtn.classList.add('hidden');
+        if (ui.tabJson) ui.tabJson.classList.add('hidden');
+        // If JSON tab was active, switch back to Relations
+        if (ui.tabJson && ui.tabJson.classList.contains('active')) {
+            ui.tabJson.classList.remove('active');
+            ui.tabRelations.classList.add('active');
+            ui.viewJson.classList.add('hidden');
+            ui.viewRelations.classList.remove('hidden');
+        }
     }
 }
 
