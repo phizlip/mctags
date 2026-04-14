@@ -552,9 +552,10 @@ button:disabled {
 }
 
 .json-copy-btn {
-    position: absolute;
-    top: 0.25rem;
-    right: 0.25rem;
+    position: sticky;
+    top: 0;
+    float: right;
+    margin-bottom: -28px;
     width: 28px !important;
     height: 28px !important;
     padding: 0 !important;
