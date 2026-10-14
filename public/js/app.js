@@ -98,9 +98,21 @@ function parseHash() {
     const versionId = parts[0];
 
     if (parts.length > 1) {
-        const category = parts[1];
+        let category;
+        try {
+            category = decodeURIComponent(parts[1]);
+        } catch {
+            return { versionId, nodeId: null };
+        }
         const namespace = parts[2];
-        const name = parts.slice(3).join('/');
+        let name = parts.slice(3).join('/');
+
+        // Keep old links like worldgen/minecraft/biome/is_overworld working.
+        if (category === 'worldgen' && name.includes('/')) {
+            const separator = name.indexOf('/');
+            category += '/' + name.slice(0, separator);
+            name = name.slice(separator + 1);
+        }
 
         if (category && namespace && name) {
             return { versionId, nodeId: `${category}:${namespace}:${name}` };
@@ -123,7 +135,7 @@ function updateUrl(nodeId) {
         const category = parts[0];
         const namespace = parts[1];
         const name = parts.slice(2).join('/');
-        window.location.hash = `#${versionId}/${category}/${namespace}/${name}`;
+        window.location.hash = `#${versionId}/${encodeURIComponent(category)}/${namespace}/${name}`;
     } else {
         window.location.hash = `#${versionId}`;
     }

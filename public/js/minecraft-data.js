@@ -1,4 +1,5 @@
 import { openJar } from './utils/Jar.js';
+import { parseTagPath } from './utils/tag-path.js';
 
 const MANIFEST_URL = 'https://piston-meta.mojang.com/mc/game/version_manifest_v2.json';
 
@@ -148,12 +149,9 @@ export class MinecraftData {
     }
 
     parseTagFile(filePath, json) {
-        // filePath: data/<namespace>/tags/<category>/<path>...
-        const parts = filePath.split('/');
-        const namespace = parts[1];
-        const category = parts[3];
-        const namePath = parts.slice(4).join('/');
-        const name = namePath.replace('.json', '');
+        const tagPath = parseTagPath(filePath);
+        if (!tagPath) return;
+        const { namespace, category, name } = tagPath;
 
         // NAMESPACED ID: category:namespace:name
         // e.g. block:minecraft:mud

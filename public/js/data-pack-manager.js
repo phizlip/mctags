@@ -1,5 +1,6 @@
 import { openJar } from './utils/Jar.js';
 import { VersionChecker } from './version-checker.js';
+import { parseTagPath } from './utils/tag-path.js';
 
 const DATAPACK_COLORS = [
     '#3b82f6',
@@ -125,19 +126,16 @@ export class DataPackManager {
     }
 
     async extractTagsFromJar(jar) {
-        const tagRegex = /^data\/([^/]+)\/tags\/(.*?)\/(.+)\.json$/;
         const tags = new Map();
 
         for (const path in jar.entries) {
-            const match = path.match(tagRegex);
-            if (match) {
+            const tagPath = parseTagPath(path);
+            if (tagPath) {
                 try {
                     const content = await jar.readEntry(path);
                     const json = JSON.parse(content);
 
-                    const namespace = match[1];
-                    const category = match[2];
-                    const namePath = match[3];
+                    const { namespace, category, name: namePath } = tagPath;
 
                     // Create tag ID: category:namespace:name
                     const tagId = `${category}:${namespace}:${namePath}`;
