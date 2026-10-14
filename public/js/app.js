@@ -67,18 +67,17 @@ if (ui.tabRelations && ui.tabJson) {
 
 const jsonCopyBtn = document.getElementById('json-copy-btn');
 if (jsonCopyBtn) {
-    const copyIcon = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" width="16" height="16"><path d="M0 6.75C0 5.784.784 5 1.75 5h1.5a.75.75 0 0 1 0 1.5h-1.5a.25.25 0 0 0-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 0 0 .25-.25v-1.5a.75.75 0 0 1 1.5 0v1.5A1.75 1.75 0 0 1 9.25 16h-7.5A1.75 1.75 0 0 1 0 14.25Z"></path><path d="M5 1.75C5 .784 5.784 0 6.75 0h7.5C15.216 0 16 .784 16 1.75v7.5A1.75 1.75 0 0 1 14.25 11h-7.5A1.75 1.75 0 0 1 5 9.25Zm1.75-.25a.25.25 0 0 0-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 0 0 .25-.25v-7.5a.25.25 0 0 0-.25-.25Z"></path></svg>`;
-    const checkIcon = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" width="16" height="16"><path d="M13.78 4.22a.75.75 0 0 1 0 1.06l-7.25 7.25a.75.75 0 0 1-1.06 0L2.22 9.28a.751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018L6 10.94l6.72-6.72a.75.75 0 0 1 1.06 0Z"></path></svg>`;
+    const icon = jsonCopyBtn.querySelector('use');
 
     jsonCopyBtn.addEventListener('click', () => {
         const codeEl = document.getElementById('json-content');
         if (!codeEl) return;
         navigator.clipboard.writeText(codeEl.textContent);
-        jsonCopyBtn.innerHTML = checkIcon;
+        icon.setAttribute('href', '#icon-check');
     });
 
     jsonCopyBtn.addEventListener('mouseleave', () => {
-        jsonCopyBtn.innerHTML = copyIcon;
+        icon.setAttribute('href', '#icon-copy');
     });
 }
 
@@ -373,19 +372,17 @@ if (resizer && sidebar) {
 
     const sidebarToggleBtn = document.getElementById('sidebar-toggle-btn');
     if (sidebarToggleBtn) {
-        const collapseIcon = `<path d="M6.823 7.823a.25.25 0 0 1 0 .354l-2.396 2.396A.25.25 0 0 1 4 10.396V5.604a.25.25 0 0 1 .427-.177Z"/><path d="M1.75 0h12.5C15.216 0 16 .784 16 1.75v12.5A1.75 1.75 0 0 1 14.25 16H1.75A1.75 1.75 0 0 1 0 14.25V1.75C0 .784.784 0 1.75 0ZM1.5 1.75v12.5c0 .138.112.25.25.25H9.5v-13H1.75a.25.25 0 0 0-.25.25ZM11 14.5h3.25a.25.25 0 0 0 .25-.25V1.75a.25.25 0 0 0-.25-.25H11Z"/>`;
-        const expandIcon = `<path d="m4.177 7.823 2.396-2.396A.25.25 0 0 1 7 5.604v4.792a.25.25 0 0 1-.427.177L4.177 8.177a.25.25 0 0 1 0-.354Z"/><path d="M0 1.75C0 .784.784 0 1.75 0h12.5C15.216 0 16 .784 16 1.75v12.5A1.75 1.75 0 0 1 14.25 16H1.75A1.75 1.75 0 0 1 0 14.25Zm1.75-.25a.25.25 0 0 0-.25.25v12.5c0 .138.112.25.25.25H9.5v-13Zm12.5 13a.25.25 0 0 0 .25-.25V1.75a.25.25 0 0 0-.25-.25H11v13Z"/>`;
 
         sidebarToggleBtn.addEventListener('click', () => {
             sidebar.classList.toggle('collapsed');
             resizer.classList.toggle('collapsed');
 
-            const svg = sidebarToggleBtn.querySelector('svg');
+            const icon = sidebarToggleBtn.querySelector('use');
             if (sidebar.classList.contains('collapsed')) {
-                svg.innerHTML = collapseIcon;
+                icon.setAttribute('href', '#icon-sidebar-collapse');
                 sidebarToggleBtn.title = "Expand Sidebar";
             } else {
-                svg.innerHTML = expandIcon;
+                icon.setAttribute('href', '#icon-sidebar-expand');
                 sidebarToggleBtn.title = "Collapse Sidebar";
             }
 
