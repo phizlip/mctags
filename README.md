@@ -1,36 +1,27 @@
-# <img src="https://github.com/user-attachments/assets/ca81a7fe-7638-4dd8-b82c-777edb2320a8" width="25" height="25" alt="icon" /> <a href="https://mctags.dev">mctags.dev</a>
+# <img src="https://github.com/user-attachments/assets/ca81a7fe-7638-4dd8-b82c-777edb2320a8" width="25" height="25" alt="icon" /> [mctags.dev](https://mctags.dev)
 
 A web-based tool for visualizing the hierarchy of Minecraft's data.
 
 **Note:** This project is not affiliated with Mojang or Microsoft in any way. It does NOT redistribute any Minecraft code or resources. The Minecraft JAR is downloaded directly from Mojang's servers to your browser.
 
-<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/d0e588ee-c499-4915-84aa-7224bf4c77b6" />
+<img width="1920" height="1080" alt="mctags showing a tag graph and its JSON" src="https://github.com/user-attachments/assets/d0e588ee-c499-4915-84aa-7224bf4c77b6" />
 
+## Working locally
 
-## Build instructions
+This project consists of static files in `public/`, so any local web server will work. For example, with Python:
 
-1.  **Install dependencies**
-    ```bash
-    npm install
-    ```
+```sh
+cd ~
+git clone https://github.com/phizlip/mctags.git
+cd mctags
+python3 -m http.server 8000 --bind 127.0.0.1 --directory public
+```
 
-2.  **Run the web app**
-    ```bash
-    npm start
-    ```
-    This will serve the app at `http://localhost:3000`.
-
-## Features
-
--   **Tree View**: Browse the full folder structure of the data.
--   **Relational View**: View the relationships between tags and resources.
--   **JSON View**: View and copy the JSON content of tags.
--   **Search**: Instantly filter tags and resources.
+Open [localhost:8000](http://localhost:8000) and refresh after making changes.
 
 ## Credits
 
--   **Graph visualization**: [Cytoscape.js](https://js.cytoscape.org/)
--   **Layout**: [Dagre](https://github.com/dagrejs/dagre) / [fCoSE](https://github.com/iVis-at-Bilkent/cytoscape.js-fcose)
--   **JAR extraction**: [JSZip](https://stuk.github.io/jszip/)
--   **Icons**: [Octicons](https://primer.style/octicons/)
--   **Inspired by**: [mcsrc.dev](https://github.com/FabricMC/mcsrc)
+- [Cytoscape.js](https://js.cytoscape.org/) for the graphs, with [Dagre](https://github.com/dagrejs/dagre) and [fCoSE](https://github.com/iVis-at-Bilkent/cytoscape.js-fcose) for layout.
+- [JSZip](https://stuk.github.io/jszip/) for reading JARs and data packs.
+- [Octicons](https://primer.style/octicons/) for the icons.
+- Inspired by [mcsrc.dev](https://github.com/FabricMC/mcsrc).
