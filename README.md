@@ -2,9 +2,7 @@
 
 A web-based tool for visualizing the hierarchy of Minecraft's data.
 
-**Note:** This project is not affiliated with Mojang or Microsoft in any way. It does NOT redistribute any Minecraft code or resources. The Minecraft JAR is downloaded directly from Mojang's servers to your browser.
-
-<img width="1920" height="1080" alt="mctags showing a tag graph and its JSON" src="https://github.com/user-attachments/assets/d0e588ee-c499-4915-84aa-7224bf4c77b6" />
+Note: This project is not affiliated with Mojang or Microsoft in any way. It does NOT redistribute any Minecraft code or resources. The Minecraft JAR is downloaded directly from Mojang's servers to your browser.
 
 ## Working locally
 
