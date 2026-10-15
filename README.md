@@ -1,6 +1,6 @@
-# <img src="https://github.com/user-attachments/assets/ca81a7fe-7638-4dd8-b82c-777edb2320a8" width="25" height="25" alt="icon" /> [mctags.dev](https://mctags.dev)
+# [https://mctags.dev/](https://mctags.dev)
 
-A web-based tool for visualizing the hierarchy of Minecraft's data.
+A web-based tool for visualizing Minecraft's data.
 
 Note: This project is not affiliated with Mojang or Microsoft in any way. It does NOT redistribute any Minecraft code or resources. The Minecraft JAR is downloaded directly from Mojang's servers to your browser.
 
