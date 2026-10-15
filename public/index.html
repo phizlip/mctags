@@ -6,6 +6,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>mctags.dev</title>
     <link rel="icon" type="image/gif" href="img/mctags.gif">
+    <script>
+        document.documentElement.dataset.theme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    </script>
     <link rel="stylesheet" href="css/style.css">
 
 
@@ -75,7 +78,7 @@
     </svg>
 
     <div id="disclaimer-modal" class="overlay hidden"
-        style="background: rgba(24, 24, 27, 0.4); backdrop-filter: blur(2px);">
+        style="background: var(--overlay); backdrop-filter: blur(2px);">
         <div class="card disclaimer-card">
             <div class="disclaimer-header-row"
                 style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1rem;">
@@ -96,7 +99,7 @@
     </div>
 
     <div id="loading-modal" class="overlay hidden"
-        style="background: rgba(24, 24, 27, 0.4); backdrop-filter: blur(2px);">
+        style="background: var(--overlay); backdrop-filter: blur(2px);">
         <div class="card" style="background: transparent; box-shadow: none;">
             <div id="status-container">
                 <p id="progress-text"
@@ -111,7 +114,7 @@
     </div>
 
     <div id="settings-modal" class="overlay hidden"
-        style="background: rgba(24, 24, 27, 0.4); backdrop-filter: blur(2px);">
+        style="background: var(--overlay); backdrop-filter: blur(2px);">
         <div class="card settings-card">
             <div class="settings-header-row"
                 style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
@@ -121,6 +124,14 @@
                 </button>
             </div>
             <div class="settings-body" style="text-align: left;">
+                <div class="setting-item" style="margin-bottom: 1.5rem;">
+                    <label for="theme-select" style="display: block; margin-bottom: 0.5rem; font-size: 0.875rem; color: var(--text-secondary);">Theme</label>
+                    <select id="theme-select">
+                        <option value="system">System</option>
+                        <option value="light">Light</option>
+                        <option value="dark">Dark</option>
+                    </select>
+                </div>
                 <div class="setting-item" style="margin-bottom: 1.5rem;">
                     <label for="grid-spacing"
                         style="display: block; margin-bottom: 0.5rem; font-size: 0.875rem; color: var(--text-secondary);">Grid
@@ -140,7 +151,7 @@
     </div>
 
     <div id="datapack-modal" class="overlay hidden"
-        style="background: rgba(24, 24, 27, 0.4); backdrop-filter: blur(2px);">
+        style="background: var(--overlay); backdrop-filter: blur(2px);">
         <div class="card settings-card">
             <div class="settings-header-row"
                 style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
@@ -169,7 +180,7 @@
         </div>
     </div>
 
-    <div id="about-modal" class="overlay hidden" style="background: rgba(24, 24, 27, 0.4); backdrop-filter: blur(2px);">
+    <div id="about-modal" class="overlay hidden" style="background: var(--overlay); backdrop-filter: blur(2px);">
         <div class="card about-card">
             <div class="about-header-row">
                 <div style="display: flex; align-items: center; gap: 0.75rem;">
@@ -233,6 +244,12 @@
                                 <kbd>F</kbd>
                             </div>
                             <span>Focus Search</span>
+                        </li>
+                        <li>
+                            <div class="about-shortcuts-keys">
+                                <kbd>T</kbd>
+                            </div>
+                            <span>Toggle Theme</span>
                         </li>
                         <li>
                             <div class="about-shortcuts-keys">

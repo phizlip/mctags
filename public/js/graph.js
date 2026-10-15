@@ -22,71 +22,7 @@ export class TagGraph {
             container: this.container,
             elements: [],
 
-            style: [
-                {
-                    selector: 'node',
-                    style: {
-                        'label': 'data(label)',
-                        'color': '#a1a1aa',
-                        'font-size': 10,
-                        'font-family': 'JetBrains Mono',
-                        'text-valign': 'center',
-                        'text-halign': 'center',
-                        'width': 'label',
-                        'height': 24,
-                        'shape': 'rectangle',
-                        'padding': '12px',
-                        'background-color': '#52525b',
-                        'min-width': '80px'
-                    }
-                },
-                {
-                    selector: 'node[type="tag"]',
-                    style: {
-                        'background-color': '#e4e4e7',
-                        'width': 'label',
-                        'min-width': '80px',
-                        'height': 28,
-                        'padding': '10px',
-                        'font-weight': 'normal',
-                        'color': '#18181b'
-                    }
-                },
-                {
-                    selector: 'node[type="tag"]:selected',
-                    style: {
-                        'background-color': '#ffffff',
-                        'border-width': 2,
-                        'border-color': '#a1a1aa'
-                    }
-                },
-                {
-                    selector: 'node[dataPackColor]',
-                    style: {
-                        'background-color': 'data(dataPackColor)',
-                        'border-width': 2,
-                        'border-color': 'data(dataPackColor)',
-                        'border-opacity': 0.5
-                    }
-                },
-                {
-                    selector: 'node:selected',
-                    style: {
-                        'background-color': '#ffffff',
-                        'color': '#18181b'
-                    }
-                },
-                {
-                    selector: 'edge',
-                    style: {
-                        'width': 1,
-                        'line-color': '#3f3f46',
-                        'curve-style': 'bezier',
-                        'target-arrow-shape': 'triangle',
-                        'target-arrow-color': '#3f3f46'
-                    }
-                }
-            ],
+            style: this.getStyles(),
 
             layout: {
                 name: 'fcose',
@@ -108,6 +44,100 @@ export class TagGraph {
         });
 
         this.registerEvents();
+    }
+
+    getStyles() {
+        const css = getComputedStyle(document.documentElement);
+        const color = name => css.getPropertyValue(`--${name}`).trim();
+        // Use whichever text color has more contrast against the pack color.
+        const packText = node => {
+            const hex = node.data('dataPackColor');
+            if (!/^#[0-9a-f]{6}$/i.test(hex)) return color('graph-tag-text');
+            const channels = hex.slice(1).match(/../g).map(value => parseInt(value, 16) / 255);
+            const linear = channels.map(value => value <= 0.04045 ? value / 12.92 : ((value + 0.055) / 1.055) ** 2.4);
+            const luminance = linear[0] * 0.2126 + linear[1] * 0.7152 + linear[2] * 0.0722;
+            return (luminance + 0.05) / 0.05 > 1.05 / (luminance + 0.05) ? '#000000' : '#ffffff';
+        };
+        return [
+            {
+                selector: 'node',
+                style: {
+                    'label': 'data(label)',
+                    'color': color('graph-element-text'),
+                    'font-size': 10,
+                    'font-family': 'JetBrains Mono',
+                    'text-valign': 'center',
+                    'text-halign': 'center',
+                    'width': 'label',
+                    'height': 24,
+                    'shape': 'rectangle',
+                    'padding': '12px',
+                    'background-color': color('graph-element-bg'),
+                    'min-width': '80px'
+                }
+            },
+            {
+                selector: 'node[type="tag"]',
+                style: {
+                    'background-color': color('graph-tag-bg'),
+                    'width': 'label',
+                    'min-width': '80px',
+                    'height': 28,
+                    'padding': '10px',
+                    'font-weight': 'normal',
+                    'color': color('graph-tag-text')
+                }
+            },
+            {
+                selector: 'node[type="tag"]:selected',
+                style: {
+                    'background-color': color('graph-focus-bg'),
+                    'border-width': 2,
+                    'border-color': color('graph-focus-border')
+                }
+            },
+            {
+                selector: 'node[dataPackColor]',
+                style: {
+                    'background-color': 'data(dataPackColor)',
+                    'color': packText,
+                    'border-width': 2,
+                    'border-color': 'data(dataPackColor)',
+                    'border-opacity': 0.5
+                }
+            },
+            {
+                selector: 'node:selected',
+                style: {
+                    'background-color': color('graph-focus-bg'),
+                    'color': color('graph-focus-text')
+                }
+            },
+            {
+                selector: 'edge',
+                style: {
+                    'width': 1,
+                    'line-color': color('graph-edge'),
+                    'curve-style': 'bezier',
+                    'target-arrow-shape': 'triangle',
+                    'target-arrow-color': color('graph-edge')
+                }
+            },
+            {
+                selector: 'node.focused',
+                style: {
+                    'background-color': color('graph-focus-bg'),
+                    'color': color('graph-focus-text'),
+                    'border-width': 4,
+                    'border-color': color('graph-focus-border'),
+                    'border-style': 'solid'
+                }
+            }
+        ];
+    }
+
+    updateTheme() {
+        if (this.cy) this.cy.style(this.getStyles()).update();
     }
 
     registerEvents() {
@@ -337,13 +367,7 @@ export class TagGraph {
 
         layout.run();
 
-        this.cy.$id(tagId).style({
-            'background-color': '#ffffff',
-            'color': '#18181b',
-            'border-width': 4,
-            'border-color': '#a1a1aa',
-            'border-style': 'solid'
-        });
+        this.cy.$id(tagId).addClass('focused');
     }
 
     showEmptyState() {
